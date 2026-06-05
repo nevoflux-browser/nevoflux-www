@@ -10,6 +10,20 @@ const ui = getUI(locale);
 ---
 
 <Layout title={`${ui['404'].title} - ${ui.site.title}`}>
+  <!-- Fallback: bounce /release-notes/<anything> that has no generated page
+       (e.g. an unknown version) to the release-notes page, jumping to the
+       version anchor when present. Real versions get their own redirect page. -->
+  <script is:inline>
+    (function () {
+      var m = location.pathname.match(/^(\/[a-z]{2})?\/release-notes\/([^/]+)\/?$/);
+      if (m) {
+        var prefix = m[1] || '';
+        var slug = m[2];
+        var anchor = slug && slug !== 'latest' ? '#' + slug : '';
+        location.replace(prefix + '/release-notes' + anchor);
+      }
+    })();
+  </script>
   <NavBar />
   <main class="flex min-h-screen items-center justify-center pt-16">
     <div class="container text-center">

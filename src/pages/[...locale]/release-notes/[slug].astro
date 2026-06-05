@@ -1,0 +1,40 @@
+---
+// Per-version redirect: /release-notes/<version> (and /release-notes/latest)
+// jumps to the matching section anchor on the main release-notes page,
+// preserving the locale prefix. Generated statically for every known release.
+import { getLocale, getPath, getStaticPaths as getI18nPaths } from '~/utils/i18n';
+import { getReleaseNotes } from '~/release-notes';
+
+export function getStaticPaths() {
+  const releases = getReleaseNotes('en'); // the version list is locale-independent
+  return getI18nPaths().flatMap(({ params: { locale } }) => [
+    ...releases.map((r) => ({
+      params: { locale, slug: r.version },
+      props: { version: r.version },
+    })),
+    { params: { locale, slug: 'latest' }, props: { version: releases[0]?.version ?? '' } },
+  ]);
+}
+
+const { version } = Astro.props;
+const locale = getLocale(Astro.url);
+const base = getPath(locale, '/release-notes');
+const target = version ? `${base}#${version}` : base;
+---
+
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="robots" content="noindex" />
+    <meta http-equiv="refresh" content={`0; url=${target}`} />
+    <link rel="canonical" href={base} />
+    <title>Redirecting…</title>
+    <script is:inline define:vars={{ target }}>
+      window.location.replace(target);
+    </script>
+  </head>
+  <body>
+    <p>Redirecting to <a href={target}>release notes</a>…</p>
+  </body>
+</html>
