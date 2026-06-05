@@ -22,7 +22,11 @@
     "openclaw",
     "nevo",
     "agentic",
-    "Qwen"
+    "Qwen",
+    "nbrain",
+    "gbrain",
+    "garrytan",
+    "backlinks"
   ],
   "ignorePaths": [
     "node_modules",
