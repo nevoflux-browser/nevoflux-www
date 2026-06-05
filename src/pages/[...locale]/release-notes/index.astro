@@ -1,0 +1,43 @@
+---
+import Layout from '~/layouts/Layout.astro';
+import NavBar from '~/components/NavBar.astro';
+import Footer from '~/components/Footer.astro';
+import ReleaseNoteItem from '~/components/ReleaseNoteItem.astro';
+import { getLocale, getUI, getStaticPaths as getI18nStaticPaths } from '~/utils/i18n';
+import { getReleaseNotes } from '~/release-notes';
+
+export function getStaticPaths() {
+  return getI18nStaticPaths();
+}
+
+const locale = getLocale(Astro.url);
+const ui = getUI(locale);
+const releases = getReleaseNotes(locale);
+---
+
+<Layout title={`${ui.releaseNotes.title} · ${ui.site.title}`}>
+  <NavBar />
+  <main class="container min-h-screen pb-24 pt-32">
+    <header class="mx-auto max-w-3xl text-center">
+      <h1 class="text-4xl font-bold tracking-tight text-dark md:text-5xl">
+        {ui.releaseNotes.title}
+      </h1>
+      <p class="mt-4 text-subtle">{ui.releaseNotes.subtitle}</p>
+    </header>
+
+    <div class="mx-auto mt-16 max-w-3xl">
+      {
+        releases.length === 0 ? (
+          <p class="text-center text-muted">{ui.releaseNotes.empty}</p>
+        ) : (
+          <ol class="flex flex-col gap-12">
+            {releases.map((release, i) => (
+              <ReleaseNoteItem release={release} latest={i === 0} />
+            ))}
+          </ol>
+        )
+      }
+    </div>
+  </main>
+  <Footer />
+</Layout>

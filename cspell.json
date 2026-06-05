@@ -15,7 +15,22 @@
     "vitest",
     "playwright",
     "tsconfig",
-    "cspell"
+    "cspell",
+    "dorisgyl",
+    "zsync",
+    "Ollama",
+    "openclaw",
+    "nevo",
+    "agentic",
+    "Qwen"
   ],
-  "ignorePaths": ["node_modules", "dist", ".astro", "pnpm-lock.yaml", "*.min.js", "*.min.css"]
+  "ignorePaths": [
+    "node_modules",
+    "dist",
+    ".astro",
+    "pnpm-lock.yaml",
+    "*.min.js",
+    "*.min.css",
+    "src/release-notes/releases.generated.json"
+  ]
 }

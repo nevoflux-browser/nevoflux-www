@@ -6,6 +6,7 @@
   "nav": {
     "home": "Home",
     "features": "Features",
+    "releaseNotes": "Release Notes",
     "download": "Download",
     "github": "GitHub",
     "discord": "Discord",
@@ -137,5 +138,21 @@
     "title": "Page Not Found",
     "description": "The page you're looking for doesn't exist.",
     "backHome": "Back to Home"
+  },
+  "releaseNotes": {
+    "title": "Release Notes",
+    "subtitle": "What's new in NevoFlux — versions, downloads, and changes.",
+    "latest": "Latest",
+    "prerelease": "Pre-release",
+    "downloads": "Downloads",
+    "noNotes": "No release notes for this version yet.",
+    "empty": "No releases yet. Check back soon.",
+    "viewOnGitHub": "View on GitHub",
+    "platforms": {
+      "windows": "Windows",
+      "macos": "macOS",
+      "linux": "Linux",
+      "other": "Other"
+    }
   }
 }

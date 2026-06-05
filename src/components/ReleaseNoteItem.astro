@@ -1,0 +1,106 @@
+---
+import { format } from 'date-fns';
+import { enUS, zhCN } from 'date-fns/locale';
+import { getLocale, getUI } from '~/utils/i18n';
+import type { ReleaseNote } from '~/release-notes';
+
+interface Props {
+  release: ReleaseNote;
+  latest?: boolean;
+}
+
+const { release, latest = false } = Astro.props;
+
+const locale = getLocale(Astro.url);
+const rn = getUI(locale).releaseNotes;
+
+const dateFnsLocale = locale === 'zh' ? zhCN : enUS;
+const formattedDate = release.date
+  ? format(new Date(release.date), 'PPP', { locale: dateFnsLocale })
+  : '';
+
+const PLATFORM_ORDER = ['windows', 'macos', 'linux', 'other'] as const;
+const ARCH_LABELS: Record<string, string> = {
+  arm64: 'ARM64',
+  x64: 'x64',
+  universal: 'Universal',
+};
+
+const groupedDownloads = PLATFORM_ORDER.map((platform) => ({
+  platform,
+  label: rn.platforms[platform],
+  items: release.downloads.filter((d) => d.platform === platform),
+})).filter((group) => group.items.length > 0);
+
+function downloadLabel(arch: ReleaseNote['downloads'][number]['arch'], name: string) {
+  const ext = name.includes('.') ? name.slice(name.lastIndexOf('.')) : '';
+  return arch ? `${ARCH_LABELS[arch]} ${ext}`.trim() : name;
+}
+---
+
+<li id={release.version} class="border-accent/20 scroll-mt-24 border-l-2 pl-6">
+  <div class="flex flex-wrap items-baseline gap-3">
+    <h2 class="text-2xl font-bold text-dark">v{release.version}</h2>
+    {
+      latest && (
+        <span class="bg-accent/10 rounded-full px-2.5 py-0.5 text-xs font-medium text-accent">
+          {rn.latest}
+        </span>
+      )
+    }
+    {
+      release.prerelease && (
+        <span class="rounded-full bg-amber-500/10 px-2.5 py-0.5 text-xs font-medium text-amber-600">
+          {rn.prerelease}
+        </span>
+      )
+    }
+    {
+      formattedDate && (
+        <time datetime={release.date} class="text-sm text-muted">
+          {formattedDate}
+        </time>
+      )
+    }
+  </div>
+
+  {
+    release.bodyHtml ? (
+      <div class="release-prose mt-4 text-subtle" set:html={release.bodyHtml} />
+    ) : (
+      <p class="mt-4 text-sm italic text-muted">{rn.noNotes}</p>
+    )
+  }
+
+  {
+    groupedDownloads.length > 0 && (
+      <div class="mt-5">
+        <p class="text-xs font-semibold uppercase tracking-wide text-muted">{rn.downloads}</p>
+        <div class="mt-2 flex flex-col gap-2">
+          {groupedDownloads.map((group) => (
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="w-16 shrink-0 text-sm font-medium text-dark">{group.label}</span>
+              {group.items.map((d) => (
+                <a
+                  href={d.url}
+                  class="border-dark/10 hover:border-accent/40 inline-flex items-center rounded-md border px-2.5 py-1 text-xs text-subtle transition-colors hover:text-accent"
+                >
+                  {downloadLabel(d.arch, d.name)}
+                </a>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  <a
+    href={release.releaseUrl}
+    target="_blank"
+    rel="noopener noreferrer"
+    class="mt-4 inline-block text-sm text-accent hover:underline"
+  >
+    {rn.viewOnGitHub} →
+  </a>
+</li>

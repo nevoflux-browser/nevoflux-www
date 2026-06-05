@@ -6,6 +6,7 @@
   "nav": {
     "home": "首页",
     "features": "特性",
+    "releaseNotes": "更新日志",
     "download": "下载",
     "github": "GitHub",
     "discord": "Discord",
@@ -134,5 +135,21 @@
     "title": "页面未找到",
     "description": "您访问的页面不存在。",
     "backHome": "返回首页"
+  },
+  "releaseNotes": {
+    "title": "更新日志",
+    "subtitle": "NevoFlux 的版本更新 —— 版本、下载与变更。",
+    "latest": "最新",
+    "prerelease": "预发布",
+    "downloads": "下载",
+    "noNotes": "该版本暂无更新说明。",
+    "empty": "暂无发布版本，敬请期待。",
+    "viewOnGitHub": "在 GitHub 查看",
+    "platforms": {
+      "windows": "Windows",
+      "macos": "macOS",
+      "linux": "Linux",
+      "other": "其他"
+    }
   }
 }

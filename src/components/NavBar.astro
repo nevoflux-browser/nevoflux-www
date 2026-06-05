@@ -19,10 +19,17 @@ const alternateUrl = getAlternateUrl(Astro.url);
 
     <div class="flex items-center gap-4 sm:gap-6">
       <a
-        href="#features"
+        href={getPath(locale, '/#features')}
         class="hidden text-sm font-medium text-subtle transition-colors hover:text-accent sm:block"
       >
         {ui.nav.features}
+      </a>
+
+      <a
+        href={getPath(locale, '/release-notes')}
+        class="hidden text-sm font-medium text-subtle transition-colors hover:text-accent sm:block"
+      >
+        {ui.nav.releaseNotes}
       </a>
 
       <!-- Language switcher -->

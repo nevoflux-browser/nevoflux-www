@@ -35,3 +35,47 @@
     font-family: 'Bricolage Grotesque', system-ui, sans-serif;
   }
 }
+
+/* Rendered Markdown for release notes (content is set:html, so it lives outside
+   Astro's scoped styles). Authored by maintainers in src/release-notes/notes.json. */
+.release-prose {
+  line-height: 1.7;
+}
+.release-prose h1,
+.release-prose h2,
+.release-prose h3,
+.release-prose h4 {
+  margin: 1.25rem 0 0.5rem;
+  font-weight: 600;
+  color: var(--nevo-dark);
+}
+.release-prose h3 {
+  font-size: 1.05rem;
+}
+.release-prose p {
+  margin: 0.5rem 0;
+}
+.release-prose ul,
+.release-prose ol {
+  margin: 0.5rem 0;
+  padding-left: 1.25rem;
+}
+.release-prose ul {
+  list-style: disc;
+}
+.release-prose ol {
+  list-style: decimal;
+}
+.release-prose li {
+  margin: 0.25rem 0;
+}
+.release-prose a {
+  color: var(--nevo-accent);
+  text-decoration: underline;
+}
+.release-prose code {
+  border-radius: 0.25rem;
+  background: var(--nevo-surface);
+  padding: 0.1em 0.35em;
+  font-size: 0.9em;
+}
