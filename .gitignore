@@ -41,3 +41,6 @@ playwright-report/
 # cache
 .eslintcache
 .prettiercache
+
+#claude
+CLAUDE.md
