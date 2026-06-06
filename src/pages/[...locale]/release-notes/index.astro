@@ -15,7 +15,10 @@ const ui = getUI(locale);
 const releases = getReleaseNotes(locale);
 ---
 
-<Layout title={`${ui.releaseNotes.title} · ${ui.site.title}`}>
+<Layout
+  title={`${ui.releaseNotes.title} · ${ui.site.title}`}
+  description={ui.releaseNotes.subtitle}
+>
   <NavBar />
   <main class="container min-h-screen pb-24 pt-32">
     <header class="mx-auto max-w-3xl text-center">

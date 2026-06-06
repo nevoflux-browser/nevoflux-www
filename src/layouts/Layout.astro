@@ -5,28 +5,117 @@ import '@fontsource/bricolage-grotesque/600.css';
 import '@fontsource/bricolage-grotesque/700.css';
 import '~/styles/global.css';
 
-import { getLocale, getUI } from '~/utils/i18n';
+import { getLocale, getUI, localeLang, getLocalizedPathnames } from '~/utils/i18n';
+import { SITE_URL, GITHUB_URL, DISCORD_URL, X_URL } from '~/constants';
 
 interface Props {
   title?: string;
   description?: string;
+  /** Social-share image, resolved against the site origin. Defaults to the logo. */
+  image?: string;
+  /** Emit `noindex` for utility pages (404, redirects). */
+  noindex?: boolean;
 }
 
 const locale = getLocale(Astro.url);
 const ui = getUI(locale);
 
-const { title = ui.site.title, description = ui.site.description } = Astro.props;
+const {
+  title = ui.site.title,
+  description = ui.site.description,
+  image = '/logo256.png',
+  noindex = false,
+} = Astro.props;
+
+const site = Astro.site ?? new URL(SITE_URL);
+const paths = getLocalizedPathnames(Astro.url);
+const canonical = new URL(paths[locale], site).href;
+const ogImage = new URL(image, site).href;
+const ogLocale = locale === 'zh' ? 'zh_CN' : 'en_US';
+const altOgLocale = locale === 'zh' ? 'en_US' : 'zh_CN';
+
+// Structured data: one product, one publisher, one site — joined in a graph.
+const orgId = `${site.origin}/#organization`;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [
+    {
+      '@type': 'Organization',
+      '@id': orgId,
+      name: ui.site.title,
+      url: `${site.origin}/`,
+      logo: new URL('/logo256.png', site).href,
+      sameAs: [GITHUB_URL, DISCORD_URL, X_URL],
+    },
+    {
+      '@type': 'WebSite',
+      '@id': `${site.origin}/#website`,
+      name: ui.site.title,
+      url: `${site.origin}/`,
+      description: ui.site.description,
+      inLanguage: [localeLang.en, localeLang.zh],
+      publisher: { '@id': orgId },
+    },
+    {
+      '@type': 'SoftwareApplication',
+      name: ui.site.title,
+      applicationCategory: 'BrowserApplication',
+      operatingSystem: 'Windows, macOS, Linux',
+      url: `${site.origin}/`,
+      description: ui.site.description,
+      offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+      publisher: { '@id': orgId },
+    },
+  ],
+};
 ---
 
 <!doctype html>
-<html lang={locale}>
+<html lang={localeLang[locale]}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content={description} />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="sitemap" href="/sitemap-index.xml" />
     <title>{title}</title>
+    <meta name="description" content={description} />
+    {
+      noindex ? (
+        <meta name="robots" content="noindex, nofollow" />
+      ) : (
+        <meta name="robots" content="index, follow" />
+      )
+    }
+    <link rel="canonical" href={canonical} />
+
+    <!-- Language alternates -->
+    <link rel="alternate" hreflang="en" href={new URL(paths.en, site).href} />
+    <link rel="alternate" hreflang="zh-CN" href={new URL(paths.zh, site).href} />
+    <link rel="alternate" hreflang="x-default" href={new URL(paths.en, site).href} />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={ui.site.title} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:locale" content={ogLocale} />
+    <meta property="og:locale:alternate" content={altOgLocale} />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary" />
+    <meta name="twitter:site" content="@NevoFlux" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0b1120" media="(prefers-color-scheme: dark)" />
+
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/logo256.png" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} is:inline />
   </head>
   <body class="min-h-screen bg-paper text-dark antialiased">
     <slot />

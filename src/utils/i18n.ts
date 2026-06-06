@@ -40,3 +40,22 @@ export function getAlternateUrl(url: URL): string {
   // Currently on /zh → strip prefix
   return url.pathname.replace(/^\/zh/, '') || '/';
 }
+
+/** BCP-47 language tag for the `<html lang>` attribute and hreflang annotations. */
+export const localeLang: Record<Locale, string> = {
+  en: 'en',
+  zh: 'zh-CN',
+};
+
+/**
+ * The equivalent pathname of the current page in every locale, used to emit
+ * `<link rel="alternate" hreflang>` and the canonical URL. The `/zh` prefix is
+ * stripped to recover the locale-agnostic base path, then re-applied for zh.
+ */
+export function getLocalizedPathnames(url: URL): Record<Locale, string> {
+  const base = url.pathname.replace(/^\/zh(?=\/|$)/, '') || '/';
+  return {
+    en: base,
+    zh: base === '/' ? '/zh/' : `/zh${base}`,
+  };
+}

@@ -9,7 +9,7 @@ const locale = getLocale(Astro.url);
 const ui = getUI(locale);
 ---
 
-<Layout title={`${ui['404'].title} - ${ui.site.title}`}>
+<Layout title={`${ui['404'].title} - ${ui.site.title}`} noindex={true}>
   <!-- Fallback: bounce /release-notes/<anything> that has no generated page
        (e.g. an unknown version) to the release-notes page, jumping to the
        version anchor when present. Real versions get their own redirect page. -->
