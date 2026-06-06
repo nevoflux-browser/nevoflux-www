@@ -5,6 +5,7 @@
   },
   "nav": {
     "home": "Home",
+    "documentation": "Documentation",
     "features": "Features",
     "releaseNotes": "Release Notes",
     "download": "Download",
