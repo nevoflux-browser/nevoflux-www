@@ -1,0 +1,39 @@
+---
+import { format } from 'date-fns';
+import { enUS, zhCN } from 'date-fns/locale';
+import Layout from '~/layouts/Layout.astro';
+import NavBar from '~/components/NavBar.astro';
+import Footer from '~/components/Footer.astro';
+import { getLocale, getUI, getStaticPaths as getI18nStaticPaths } from '~/utils/i18n';
+import { getPrivacyPolicy } from '~/privacy';
+
+export function getStaticPaths() {
+  return getI18nStaticPaths();
+}
+
+const locale = getLocale(Astro.url);
+const ui = getUI(locale);
+const { bodyHtml, lastUpdated } = getPrivacyPolicy(locale);
+
+// Parse as local time (append T00:00:00) so the formatted date never shifts a day.
+const formattedDate = format(new Date(`${lastUpdated}T00:00:00`), 'PPP', {
+  locale: locale === 'zh' ? zhCN : enUS,
+});
+---
+
+<Layout title={`${ui.privacy.title} · ${ui.site.title}`} description={ui.privacy.subtitle}>
+  <NavBar />
+  <main class="container min-h-screen pb-24 pt-32">
+    <header class="mx-auto max-w-3xl text-center">
+      <h1 class="text-4xl font-bold tracking-tight text-dark md:text-5xl">
+        {ui.privacy.title}
+      </h1>
+      <p class="mt-4 text-sm text-muted">
+        {ui.privacy.lastUpdated}: <time datetime={lastUpdated}>{formattedDate}</time>
+      </p>
+    </header>
+
+    <article class="prose mx-auto mt-12 max-w-3xl text-subtle" set:html={bodyHtml} />
+  </main>
+  <Footer />
+</Layout>

@@ -7,9 +7,17 @@
 
 Add a bilingual (en/zh) `/privacy-policy` page to the NevoFlux marketing site,
 following the site's established patterns. Content is a **standard template** for a
-privacy-focused desktop browser, with the contact email and effective date left as
-clearly-marked placeholders for the maintainer to fill in. The template is explicitly
-**not legal advice** and must be reviewed before going live.
+privacy-focused desktop browser. The page renders a real, professional-looking
+document — **not** visible `[TBD]` markers — while keeping the two maintainer-specific
+values easy to update in one place:
+
+- **Effective date ("Last updated")** = today, `2026-06-10` (the genuine authoring
+  date), stored as a single constant to bump on real launch.
+- **Contact** = points readers to the existing community channels (Discord / GitHub),
+  with a `PRIVACY_CONTACT_EMAIL` constant left empty + a `// TODO` so a dedicated
+  privacy email can be dropped in later (when set, the page shows it instead).
+
+The template is explicitly **not legal advice** and must be reviewed before going live.
 
 ## Routes
 
@@ -29,8 +37,12 @@ live in the translation JSONs.
 
 1. **`src/privacy/index.ts`** (new) — content module.
    - Two Markdown constants: the policy in `en` and `zh`.
-   - `getPrivacyPolicy(locale): { bodyHtml: string }` — renders the locale's Markdown
-     via `marked` (`gfm: true`), with `zh` falling back to `en` if empty.
+   - A `contactMarkdown(locale)` helper that emits the Contact section body from
+     `PRIVACY_CONTACT_EMAIL` (when set) or the Discord / GitHub channels otherwise,
+     appended to the policy Markdown before rendering.
+   - `getPrivacyPolicy(locale): { bodyHtml: string; lastUpdated: string }` — renders the
+     locale's Markdown via `marked` (`gfm: true`), with `zh` falling back to `en` if
+     empty; `lastUpdated` is `PRIVACY_LAST_UPDATED`.
    - Top-of-file comment flags the content as a non-legal template to be reviewed.
 
 2. **`src/pages/[...locale]/privacy-policy.astro`** (new) — the page.
@@ -61,12 +73,17 @@ live in the translation JSONs.
 6. **`src/components/ReleaseNoteItem.astro`** (changed) — update the single usage
    `class="release-prose ..."` → `class="prose ..."` to match the renamed CSS.
 
+7. **`src/constants/index.ts`** (changed) — add `PRIVACY_LAST_UPDATED = '2026-06-10'`
+   and `PRIVACY_CONTACT_EMAIL = ''` (with a `// TODO` to set a dedicated privacy email).
+   These keep the two maintainer-specific values in the established site-constants file.
+
 ### Content sections (template, en + zh)
 
 Intro → Information We Collect → How We Use Information → AI / Agent Data Processing →
 Third-Party Services → Data Retention → Your Rights → Children's Privacy →
-Changes to This Policy → Contact. Contact email and effective date are placeholders
-(e.g. `_[contact email — to be added]_`).
+Changes to This Policy → Contact. The Contact section is built in TS (not hardcoded in
+the Markdown) so it can render either the `PRIVACY_CONTACT_EMAIL` (when set) or, by
+default, links to the existing Discord / GitHub community channels.
 
 The prose reflects a privacy-focused desktop browser built on Zen/Firefox: emphasizes
 local-first/on-device handling, no server-side tracking by default, and describes AI/agent

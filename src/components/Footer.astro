@@ -1,5 +1,5 @@
 ---
-import { getLocale, getUI } from '~/utils/i18n';
+import { getLocale, getUI, getPath } from '~/utils/i18n';
 import { GITHUB_URL, DISCORD_URL, X_URL } from '~/constants';
 import Logo from './Logo.astro';
 
@@ -44,6 +44,9 @@ const ui = getUI(locale);
           rel="noopener noreferrer"
         >
           Discord
+        </a>
+        <a href={getPath(locale, '/privacy-policy')} class="transition-colors hover:text-accent">
+          {ui.footer.privacy}
         </a>
       </div>
     </div>

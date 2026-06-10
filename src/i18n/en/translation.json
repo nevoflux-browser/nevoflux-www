@@ -133,7 +133,8 @@
   "footer": {
     "copyright": "© 2026 NevoFlux. All rights reserved.",
     "license": "MPL-2.0 License",
-    "builtWith": "Built on Zen Browser / Firefox"
+    "builtWith": "Built on Zen Browser / Firefox",
+    "privacy": "Privacy Policy"
   },
   "404": {
     "title": "Page Not Found",
@@ -155,5 +156,10 @@
       "linux": "Linux",
       "other": "Other"
     }
+  },
+  "privacy": {
+    "title": "Privacy Policy",
+    "subtitle": "How NevoFlux handles your data — privacy-respecting and local-first by design.",
+    "lastUpdated": "Last updated"
   }
 }

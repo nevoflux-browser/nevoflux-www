@@ -36,44 +36,44 @@
   }
 }
 
-/* Rendered Markdown for release notes (content is set:html, so it lives outside
-   Astro's scoped styles). Authored by maintainers in src/release-notes/notes.json. */
-.release-prose {
+/* Rendered Markdown prose (release notes, privacy policy). Content is set:html, so it
+   lives outside Astro's scoped styles. Authored in src/release-notes/ and src/privacy/. */
+.prose {
   line-height: 1.7;
 }
-.release-prose h1,
-.release-prose h2,
-.release-prose h3,
-.release-prose h4 {
+.prose h1,
+.prose h2,
+.prose h3,
+.prose h4 {
   margin: 1.25rem 0 0.5rem;
   font-weight: 600;
   color: var(--nevo-dark);
 }
-.release-prose h3 {
+.prose h3 {
   font-size: 1.05rem;
 }
-.release-prose p {
+.prose p {
   margin: 0.5rem 0;
 }
-.release-prose ul,
-.release-prose ol {
+.prose ul,
+.prose ol {
   margin: 0.5rem 0;
   padding-left: 1.25rem;
 }
-.release-prose ul {
+.prose ul {
   list-style: disc;
 }
-.release-prose ol {
+.prose ol {
   list-style: decimal;
 }
-.release-prose li {
+.prose li {
   margin: 0.25rem 0;
 }
-.release-prose a {
+.prose a {
   color: var(--nevo-accent);
   text-decoration: underline;
 }
-.release-prose code {
+.prose code {
   border-radius: 0.25rem;
   background: var(--nevo-surface);
   padding: 0.1em 0.35em;

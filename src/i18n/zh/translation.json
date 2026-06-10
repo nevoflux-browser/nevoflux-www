@@ -130,7 +130,8 @@
   "footer": {
     "copyright": "© 2026 NevoFlux. 保留所有权利。",
     "license": "MPL-2.0 许可证",
-    "builtWith": "基于 Zen Browser / Firefox 构建"
+    "builtWith": "基于 Zen Browser / Firefox 构建",
+    "privacy": "隐私政策"
   },
   "404": {
     "title": "页面未找到",
@@ -152,5 +153,10 @@
       "linux": "Linux",
       "other": "其他"
     }
+  },
+  "privacy": {
+    "title": "隐私政策",
+    "subtitle": "NevoFlux 如何处理您的数据——尊重隐私、以本地优先为设计理念。",
+    "lastUpdated": "最后更新"
   }
 }

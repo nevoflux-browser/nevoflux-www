@@ -66,7 +66,7 @@ function downloadLabel(arch: ReleaseNote['downloads'][number]['arch'], name: str
 
   {
     release.bodyHtml ? (
-      <div class="release-prose mt-4 text-subtle" set:html={release.bodyHtml} />
+      <div class="prose mt-4 text-subtle" set:html={release.bodyHtml} />
     ) : (
       <p class="mt-4 text-sm italic text-muted">{rn.noNotes}</p>
     )
