@@ -28,7 +28,8 @@
     "garrytan",
     "backlinks",
     "pathnames",
-    "hreflang"
+    "hreflang",
+    "mozmake"
   ],
   "ignorePaths": [
     "node_modules",

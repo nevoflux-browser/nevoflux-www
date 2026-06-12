@@ -1,5 +1,78 @@
 [
   {
+    "version": "0.3.6",
+    "tag": "0.3.6",
+    "name": "Release build - 0.3.6 (2026-06-12)",
+    "date": "2026-06-12T03:04:36Z",
+    "prerelease": false,
+    "releaseUrl": "https://github.com/dorisgyl/nevoflux/releases/tag/0.3.6",
+    "downloads": [
+      {
+        "name": "nevoflux-aarch64.AppImage",
+        "url": "https://github.com/dorisgyl/nevoflux/releases/download/0.3.6/nevoflux-aarch64.AppImage",
+        "size": 354766888,
+        "platform": "linux",
+        "arch": "arm64"
+      },
+      {
+        "name": "nevoflux-x86_64.AppImage",
+        "url": "https://github.com/dorisgyl/nevoflux/releases/download/0.3.6/nevoflux-x86_64.AppImage",
+        "size": 380891600,
+        "platform": "linux",
+        "arch": "x64"
+      },
+      {
+        "name": "nevoflux.installer-arm64.exe",
+        "url": "https://github.com/dorisgyl/nevoflux/releases/download/0.3.6/nevoflux.installer-arm64.exe",
+        "size": 309567272,
+        "platform": "windows",
+        "arch": "arm64"
+      },
+      {
+        "name": "nevoflux.installer.exe",
+        "url": "https://github.com/dorisgyl/nevoflux/releases/download/0.3.6/nevoflux.installer.exe",
+        "size": 318144944,
+        "platform": "windows",
+        "arch": null
+      },
+      {
+        "name": "nevoflux.linux-aarch64.tar.xz",
+        "url": "https://github.com/dorisgyl/nevoflux/releases/download/0.3.6/nevoflux.linux-aarch64.tar.xz",
+        "size": 314715584,
+        "platform": "linux",
+        "arch": "arm64"
+      },
+      {
+        "name": "nevoflux.linux-x86_64.tar.xz",
+        "url": "https://github.com/dorisgyl/nevoflux/releases/download/0.3.6/nevoflux.linux-x86_64.tar.xz",
+        "size": 338458476,
+        "platform": "linux",
+        "arch": "x64"
+      },
+      {
+        "name": "nevoflux.macos-universal.dmg",
+        "url": "https://github.com/dorisgyl/nevoflux/releases/download/0.3.6/nevoflux.macos-universal.dmg",
+        "size": 501648598,
+        "platform": "macos",
+        "arch": "universal"
+      },
+      {
+        "name": "nevoflux.win-arm64.zip",
+        "url": "https://github.com/dorisgyl/nevoflux/releases/download/0.3.6/nevoflux.win-arm64.zip",
+        "size": 375547488,
+        "platform": "windows",
+        "arch": "arm64"
+      },
+      {
+        "name": "nevoflux.win-x86_64.zip",
+        "url": "https://github.com/dorisgyl/nevoflux/releases/download/0.3.6/nevoflux.win-x86_64.zip",
+        "size": 393517277,
+        "platform": "windows",
+        "arch": "x64"
+      }
+    ]
+  },
+  {
     "version": "0.3.5",
     "tag": "0.3.5",
     "name": "Release build - 0.3.5 (2026-06-04)",
