@@ -1,0 +1,38 @@
+---
+// Query-param redirect: /whatsnew?v=<version> jumps to the matching section
+// anchor on the release-notes page (e.g. /whatsnew?v=0.3.7 → /release-notes/#0.3.7),
+// preserving the locale prefix. A static build can't read query params, so the
+// redirect runs client-side. With no version — or one that isn't version-shaped —
+// it falls back to the release-notes index; an unknown-but-valid version lands
+// there too, since the anchor simply won't match. Generated for every locale.
+import { getLocale, getPath, getStaticPaths as getI18nPaths } from '~/utils/i18n';
+
+export function getStaticPaths() {
+  return getI18nPaths();
+}
+
+const locale = getLocale(Astro.url);
+const base = getPath(locale, '/release-notes');
+---
+
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="robots" content="noindex" />
+    <link rel="canonical" href={base} />
+    <title>Redirecting…</title>
+    <script is:inline define:vars={{ base }}>
+      (function () {
+        var v = new URLSearchParams(location.search).get('v') || '';
+        // Only accept version-shaped values (digits, dots, hyphens, alphanumerics)
+        // so the query param can't redirect to an arbitrary anchor.
+        var anchor = /^[0-9A-Za-z.-]+$/.test(v) ? '#' + v : '';
+        location.replace(base + anchor);
+      })();
+    </script>
+  </head>
+  <body>
+    <p>Redirecting to <a href={base}>release notes</a>…</p>
+  </body>
+</html>

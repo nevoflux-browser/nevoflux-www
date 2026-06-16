@@ -29,7 +29,8 @@
     "backlinks",
     "pathnames",
     "hreflang",
-    "mozmake"
+    "mozmake",
+    "whatsnew"
   ],
   "ignorePaths": [
     "node_modules",
