@@ -14,7 +14,7 @@ import { existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-const REPO = 'dorisgyl/nevoflux';
+const REPO = 'nevoflux-browser/nevoflux';
 const API = `https://api.github.com/repos/${REPO}/releases?per_page=100`;
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));

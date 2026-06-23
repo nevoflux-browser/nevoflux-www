@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { detectArch, detectPlatform, isDownload } from '../../scripts/fetch-release-notes.mjs';
 
-// Real asset names from github.com/dorisgyl/nevoflux releases.
+// Real asset names from github.com/nevoflux-browser/nevoflux releases.
 const ASSETS = [
   'linux-aarch64.mar',
   'linux.mar',
