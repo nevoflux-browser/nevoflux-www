@@ -25,14 +25,14 @@ Out of scope (confirmed): README/docs term alignment; `nevoflux://pack-install` 
 
 ## Decisions (locked)
 
-| Decision | Choice |
-| --- | --- |
-| Implementation scope this pass | P0 + P1 (PackHub preview showcase) |
-| PackHub form | Dedicated page `/packs` |
-| Pack card visuals | Placeholder visuals (gradient block + icon + "Dashboard preview"), real screenshots later |
-| README term alignment | Deferred (not this pass) |
-| `The Operator` Chinese role word | 执行者 |
-| OKF Pack positioning | Around Google's **OKF** open standard — the universal format for AI-agent knowledge exchange (NOT generic knowledge management) |
+| Decision                         | Choice                                                                                                                          |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Implementation scope this pass   | P0 + P1 (PackHub preview showcase)                                                                                              |
+| PackHub form                     | Dedicated page `/packs`                                                                                                         |
+| Pack card visuals                | Placeholder visuals (gradient block + icon + "Dashboard preview"), real screenshots later                                       |
+| README term alignment            | Deferred (not this pass)                                                                                                        |
+| `The Operator` Chinese role word | 执行者                                                                                                                          |
+| OKF Pack positioning             | Around Google's **OKF** open standard — the universal format for AI-agent knowledge exchange (NOT generic knowledge management) |
 
 ## i18n ground rule (critical)
 
@@ -53,11 +53,13 @@ to spread `...ui.agentArch.operator` (line ~23); keep the existing purple
 color/border/iconBg and the person icon.
 
 **EN (`agentArch.operator`):**
+
 - `role`: `The Operator`
 - `label`: `Loops & GBrain`
 - `description`: `Set a Loop and it runs on its own — on a schedule or a trigger, watching pages, capturing changes, and saving them to your GBrain while you sleep. When a task needs hands, Agent Mode clicks and fills for you. Extend any of it with Packs — or reach it hands-free from WhatsApp and Telegram via OpenClaw, native inside NevoFlux with no external browser to drive.`
 
 **ZH (`agentArch.operator`):**
+
 - `role`: `执行者`
 - `label`: `Loops 与 GBrain`
 - `description`: `设个 Loop 它就自己跑 —— 定时或触发，盯着网页、抓取变化，在你睡觉时写进你的 GBrain。需要动手时，Agent 模式替你点击、替你填写。用 Pack 扩展这一切 —— 或者接上 OpenClaw，从 WhatsApp、Telegram 直接喊它，原生跑在 NevoFlux 里，无需外接浏览器。`
@@ -137,29 +139,29 @@ gradient + icon) in `packs.astro`.
 
 ### Hero copy
 
-| Field | EN | ZH |
-| --- | --- | --- |
-| badge | PackHub | PackHub |
-| title | Instant superpowers for your browser | 给浏览器即装即用的超能力 |
+| Field    | EN                                                                                                                            | ZH                                                                                              |
+| -------- | ----------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| badge    | PackHub                                                                                                                       | PackHub                                                                                         |
+| title    | Instant superpowers for your browser                                                                                          | 给浏览器即装即用的超能力                                                                        |
 | subtitle | Install a Pack and your browser learns a whole workflow — skills, canvas tools, and a ready-made dashboard, all in one place. | 装上一个 Pack，你的浏览器就学会一整套工作流 —— 技能、画布工具，还有现成的 dashboard，一处搞定。 |
-| cta | Get NevoFlux | 下载 NevoFlux |
+| cta      | Get NevoFlux                                                                                                                  | 下载 NevoFlux                                                                                   |
 
 ### Pack cards (4)
 
-| slug | name (EN/ZH) | EN tagline | ZH tagline | tag (EN/ZH) |
-| --- | --- | --- | --- | --- |
-| design | Design Pack / Design Pack | Pick a design system on a dashboard and let your browser generate the UI. | 在 dashboard 上挑设计规范，让浏览器直接帮你生成 UI。 | Design / 设计 |
-| career | Career Pack / Career Pack | Tailor your resume, track applications, and prep interviews — your browser runs the job hunt. | 定制简历、跟踪投递、准备面试 —— 让浏览器替你跑完求职流程。 | Career / 求职 |
-| research | Research Pack / Research Pack | Collect sources, extract findings, and build a literature map without leaving the page. | 收集来源、提炼发现、构建文献图谱 —— 全程不用离开页面。 | Research / 研究 |
-| okf | OKF Pack / OKF Pack | Package what your browser learns into OKF, the open standard for AI-agent knowledge exchange — so any agent can read and reuse it. | 把浏览器学到的东西打包成 OKF —— 面向 AI 智能体知识交换的开放标准，让任何智能体都能读懂、复用。 | Interop / 互操作 |
+| slug     | name (EN/ZH)                  | EN tagline                                                                                                                         | ZH tagline                                                                                     | tag (EN/ZH)      |
+| -------- | ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------- | ---------------- |
+| design   | Design Pack / Design Pack     | Pick a design system on a dashboard and let your browser generate the UI.                                                          | 在 dashboard 上挑设计规范，让浏览器直接帮你生成 UI。                                           | Design / 设计    |
+| career   | Career Pack / Career Pack     | Tailor your resume, track applications, and prep interviews — your browser runs the job hunt.                                      | 定制简历、跟踪投递、准备面试 —— 让浏览器替你跑完求职流程。                                     | Career / 求职    |
+| research | Research Pack / Research Pack | Collect sources, extract findings, and build a literature map without leaving the page.                                            | 收集来源、提炼发现、构建文献图谱 —— 全程不用离开页面。                                         | Research / 研究  |
+| okf      | OKF Pack / OKF Pack           | Package what your browser learns into OKF, the open standard for AI-agent knowledge exchange — so any agent can read and reuse it. | 把浏览器学到的东西打包成 OKF —— 面向 AI 智能体知识交换的开放标准，让任何智能体都能读懂、复用。 | Interop / 互操作 |
 
 ### How-it-works steps
 
-| # | EN title / desc | ZH title / desc |
-| --- | --- | --- |
-| 1 | Pick a Pack — Choose the workflow you need. | 选 Pack —— 挑你需要的那套工作流。 |
-| 2 | Add to NevoFlux — One install brings its skills, tools, and dashboard. | 装进 NevoFlux —— 一次安装，技能、工具、dashboard 全到位。 |
-| 3 | Use it — Your new workflow is ready in Canvas. | 直接用 —— 新工作流在 Canvas 里立刻就绪。 |
+| #   | EN title / desc                                                        | ZH title / desc                                           |
+| --- | ---------------------------------------------------------------------- | --------------------------------------------------------- |
+| 1   | Pick a Pack — Choose the workflow you need.                            | 选 Pack —— 挑你需要的那套工作流。                         |
+| 2   | Add to NevoFlux — One install brings its skills, tools, and dashboard. | 装进 NevoFlux —— 一次安装，技能、工具、dashboard 全到位。 |
+| 3   | Use it — Your new workflow is ready in Canvas.                         | 直接用 —— 新工作流在 Canvas 里立刻就绪。                  |
 
 ### Build line
 
@@ -182,6 +184,7 @@ common word — not added.)
 ## Files touched
 
 **P0**
+
 - `src/i18n/en/translation.json` — rename `agentArch.personal`→`operator` + new copy; `formula`; delete `openclaw`; add `nav.packs`; add `packs`
 - `src/i18n/zh/translation.json` — same set
 - `src/components/AgentArchitecture.astro` — `...ui.agentArch.personal` → `...ui.agentArch.operator`
@@ -190,6 +193,7 @@ common word — not added.)
 - `src/components/NavBar.astro` — add PackHub link
 
 **P1**
+
 - `src/pages/[...locale]/packs.astro` — **new**
 - `src/i18n/{en,zh}/translation.json` — `packs` + `nav.packs` (listed above)
 - `cspell.json` — add `GBrain`, `PackHub`, `OKF`

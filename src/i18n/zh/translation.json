@@ -8,6 +8,7 @@
     "documentation": "文档",
     "features": "特性",
     "releaseNotes": "更新日志",
+    "packs": "PackHub",
     "download": "下载",
     "github": "GitHub",
     "discord": "Discord",
@@ -83,12 +84,12 @@
       "role": "创造者",
       "description": "在浏览器中编排 Claude Code、Gemini CLI 等 —— 构建全栈应用、调试代码、交付功能。"
     },
-    "personal": {
-      "label": "个人智能体",
-      "role": "管理者",
-      "description": "OpenClaw 和自定义智能体管理你的生活 —— 邮件、日历、任务和工作流。开源遇见开源。"
+    "operator": {
+      "label": "Loops 与 GBrain",
+      "role": "执行者",
+      "description": "设个 Loop 它就自己跑 —— 定时或触发，盯着网页、抓取变化，在你睡觉时写进你的 GBrain。需要动手时，Agent 模式替你点击、替你填写。用 Pack 扩展这一切 —— 或者接上 OpenClaw，从 WhatsApp、Telegram 直接喊它，原生跑在 NevoFlux 里，无需外接浏览器。"
     },
-    "formula": "大模型 + 编程智能体 + 个人智能体 = 掌控一切"
+    "formula": "大脑 + 创造者 + 执行者 = 掌控一切"
   },
   "comparison": {
     "title": "超越 AI 浏览器",
@@ -107,17 +108,45 @@
       { "feature": "开源", "values": [true, false, false, false] }
     ]
   },
-  "openclaw": {
-    "title": "NevoFlux × OpenClaw",
-    "subtitle": "开源 × 开源",
-    "description": "NevoFlux 驱动 OpenClaw —— 拥有 50+ 服务集成的开源个人智能体框架。从浏览器编排邮件、日历、任务、智能家居等一切。",
-    "integrations": "50+ 集成",
-    "integrationsDesc": "Gmail、Google 日历、Notion、Todoist、Slack、GitHub、Home Assistant 等。",
-    "browserUse": "原生 Browser Use",
-    "browserUseDesc": "OpenClaw 住在 NevoFlux 内部 —— 无需外接 Playwright 或无头浏览器。原生调用 70+ 浏览器 API、屏幕捕获和完整输入控制。更快、更可靠、零配置。",
-    "openSource": "完全开源",
-    "openSourceDesc": "NevoFlux 和 OpenClaw 都是开源的。你的数据、你的智能体、你的规则。",
-    "cta": "了解更多关于 OpenClaw"
+  "packs": {
+    "hero": {
+      "badge": "PackHub",
+      "title": "给浏览器即装即用的超能力",
+      "subtitle": "装上一个 Pack，你的浏览器就学会一整套工作流 —— 技能、画布工具，还有现成的 dashboard，一处搞定。",
+      "cta": "下载 NevoFlux"
+    },
+    "preview": "Dashboard 预览",
+    "items": [
+      {
+        "name": "Design Pack",
+        "tagline": "在 dashboard 上挑设计规范，让浏览器直接帮你生成 UI。",
+        "tag": "设计"
+      },
+      {
+        "name": "Career Pack",
+        "tagline": "定制简历、跟踪投递、准备面试 —— 让浏览器替你跑完求职流程。",
+        "tag": "求职"
+      },
+      {
+        "name": "Research Pack",
+        "tagline": "收集来源、提炼发现、构建文献图谱 —— 全程不用离开页面。",
+        "tag": "研究"
+      },
+      {
+        "name": "OKF Pack",
+        "tagline": "把浏览器学到的东西打包成 OKF —— 面向 AI 智能体知识交换的开放标准，让任何智能体都能读懂、复用。",
+        "tag": "互操作"
+      }
+    ],
+    "how": {
+      "title": "怎么用",
+      "steps": [
+        { "title": "选 Pack", "desc": "挑你需要的那套工作流。" },
+        { "title": "装进 NevoFlux", "desc": "一次安装，技能、工具、dashboard 全到位。" },
+        { "title": "直接用", "desc": "新工作流在 Canvas 里立刻就绪。" }
+      ]
+    },
+    "build": "想自己做 Pack？查看文档 →"
   },
   "cta": {
     "title": "准备好掌控你的浏览器了吗？",

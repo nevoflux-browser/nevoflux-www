@@ -8,6 +8,7 @@
     "documentation": "Documentation",
     "features": "Features",
     "releaseNotes": "Release Notes",
+    "packs": "PackHub",
     "download": "Download",
     "github": "GitHub",
     "discord": "Discord",
@@ -83,12 +84,12 @@
       "role": "The Creator",
       "description": "Orchestrate Claude Code, Gemini CLI, and more — directly from your browser. Build full-stack apps, debug code, ship features."
     },
-    "personal": {
-      "label": "Personal Agents",
-      "role": "The Manager",
-      "description": "OpenClaw and custom agents manage your life — email, calendar, tasks, and workflows. Open source meets open source."
+    "operator": {
+      "label": "Loops & GBrain",
+      "role": "The Operator",
+      "description": "Set a Loop and it runs on its own — on a schedule or a trigger, watching pages, capturing changes, and saving them to your GBrain while you sleep. When a task needs hands, Agent Mode clicks and fills for you. Extend any of it with Packs — or reach it hands-free from WhatsApp and Telegram via OpenClaw, native inside NevoFlux with no external browser to drive."
     },
-    "formula": "LLM Providers + Coding Agents + Personal Agents = Command Everything"
+    "formula": "Brain + Creator + Operator = Command Everything"
   },
   "comparison": {
     "title": "Beyond AI Browsers",
@@ -110,17 +111,48 @@
       { "feature": "Open Source", "values": [true, false, false, false] }
     ]
   },
-  "openclaw": {
-    "title": "NevoFlux × OpenClaw",
-    "subtitle": "Open Source × Open Source",
-    "description": "NevoFlux drives OpenClaw — the open-source personal agent framework with 50+ service integrations. Manage email, calendar, tasks, smart home, and more — all orchestrated from your browser.",
-    "integrations": "50+ Integrations",
-    "integrationsDesc": "Gmail, Google Calendar, Notion, Todoist, Slack, GitHub, Home Assistant, and more.",
-    "browserUse": "Native Browser Use",
-    "browserUseDesc": "OpenClaw lives inside NevoFlux — no external Playwright or headless browser needed. Native access to 70+ browser APIs, screen capture, and full input control. Faster, more reliable, zero setup.",
-    "openSource": "Fully Open Source",
-    "openSourceDesc": "Both NevoFlux and OpenClaw are open source. Your data, your agents, your rules.",
-    "cta": "Learn more about OpenClaw"
+  "packs": {
+    "hero": {
+      "badge": "PackHub",
+      "title": "Instant superpowers for your browser",
+      "subtitle": "Install a Pack and your browser learns a whole workflow — skills, canvas tools, and a ready-made dashboard, all in one place.",
+      "cta": "Get NevoFlux"
+    },
+    "preview": "Dashboard preview",
+    "items": [
+      {
+        "name": "Design Pack",
+        "tagline": "Pick a design system on a dashboard and let your browser generate the UI.",
+        "tag": "Design"
+      },
+      {
+        "name": "Career Pack",
+        "tagline": "Tailor your resume, track applications, and prep interviews — your browser runs the job hunt.",
+        "tag": "Career"
+      },
+      {
+        "name": "Research Pack",
+        "tagline": "Collect sources, extract findings, and build a literature map without leaving the page.",
+        "tag": "Research"
+      },
+      {
+        "name": "OKF Pack",
+        "tagline": "Package what your browser learns into OKF, the open standard for AI-agent knowledge exchange — so any agent can read and reuse it.",
+        "tag": "Interop"
+      }
+    ],
+    "how": {
+      "title": "How it works",
+      "steps": [
+        { "title": "Pick a Pack", "desc": "Choose the workflow you need." },
+        {
+          "title": "Add to NevoFlux",
+          "desc": "One install brings its skills, tools, and dashboard."
+        },
+        { "title": "Use it", "desc": "Your new workflow is ready in Canvas." }
+      ]
+    },
+    "build": "Want to build your own Pack? Read the docs →"
   },
   "cta": {
     "title": "Ready to Command Your Browser?",

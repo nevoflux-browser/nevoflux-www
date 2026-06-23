@@ -40,6 +40,13 @@ const docsUrl = `${DOCS_URL}/${locale}/docs`;
         {ui.nav.releaseNotes}
       </a>
 
+      <a
+        href={getPath(locale, '/packs')}
+        class="hidden text-sm font-medium text-subtle transition-colors hover:text-accent sm:block"
+      >
+        {ui.nav.packs}
+      </a>
+
       <!-- Language switcher -->
       <a
         href={alternateUrl}
