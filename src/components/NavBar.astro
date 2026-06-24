@@ -47,6 +47,17 @@ const docsUrl = `${DOCS_URL}/${locale}/docs`;
         {ui.nav.packs}
       </a>
 
+      <!-- Auth state (resolved client-side so prerendered pages stay static) -->
+      <span
+        id="nav-auth"
+        data-logout-label={ui.auth.logout}
+        class="text-sm font-medium text-subtle"
+      >
+        <a href={getPath(locale, '/login')} class="transition-colors hover:text-accent">
+          {ui.auth.login}
+        </a>
+      </span>
+
       <!-- Language switcher -->
       <a
         href={alternateUrl}
@@ -118,3 +129,28 @@ const docsUrl = `${DOCS_URL}/${locale}/docs`;
     </div>
   </div>
 </nav>
+
+<script>
+  import { authClient } from '~/lib/auth-client';
+
+  const slot = document.getElementById('nav-auth');
+  if (slot) {
+    const { data } = await authClient.getSession();
+    if (data?.user) {
+      const name = data.user.name || data.user.email || '';
+      slot.textContent = '';
+      const nameEl = document.createElement('span');
+      nameEl.className = 'mr-3 hidden sm:inline';
+      nameEl.textContent = name;
+      const logout = document.createElement('button');
+      logout.className = 'transition-colors hover:text-accent';
+      logout.textContent = slot.dataset.logoutLabel ?? 'Log out';
+      logout.addEventListener('click', async () => {
+        await authClient.signOut();
+        location.reload();
+      });
+      slot.appendChild(nameEl);
+      slot.appendChild(logout);
+    }
+  }
+</script>
