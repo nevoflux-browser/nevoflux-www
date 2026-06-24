@@ -42,5 +42,9 @@ playwright-report/
 .eslintcache
 .prettiercache
 
+# cloudflare
+.dev.vars
+.wrangler/
+
 #claude
 CLAUDE.md

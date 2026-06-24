@@ -1,0 +1,20 @@
+# Copy this file to `.dev.vars` (gitignored) and fill in for local dev.
+# These secrets are consumed by later stages (auth, publish); Stage 1 needs none.
+
+# Better Auth
+BETTER_AUTH_SECRET=
+BETTER_AUTH_URL=http://localhost:3000
+
+# Google OAuth
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+
+# GitHub OAuth (login)
+GITHUB_OAUTH_CLIENT_ID=
+GITHUB_OAUTH_CLIENT_SECRET=
+
+# GitHub server token (repo metadata + pack.toml fetch during publish)
+GITHUB_TOKEN=
+
+# Resend (magic-link email delivery)
+RESEND_API_KEY=

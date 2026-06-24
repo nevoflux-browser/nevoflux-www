@@ -1,0 +1,20 @@
+name = "nevoflux-www"
+main = "dist/_worker.js/index.js"
+compatibility_date = "2025-04-01"
+compatibility_flags = ["nodejs_compat"]
+
+[assets]
+directory = "./dist"
+binding = "ASSETS"
+
+# D1 holds users, sessions, and the pack registry.
+# database_id is a placeholder for local dev; the real id is injected at deploy time.
+[[d1_databases]]
+binding = "DB"
+database_name = "nevoflux-www"
+database_id = "00000000-0000-0000-0000-000000000000"
+
+# KV caches GitHub responses and backs rate limiting.
+[[kv_namespaces]]
+binding = "CACHE"
+id = "00000000000000000000000000000000"

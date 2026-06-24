@@ -8,7 +8,15 @@ import jsxA11yPlugin from 'eslint-plugin-jsx-a11y';
 
 export default [
   {
-    ignores: ['dist/', 'build/', '.astro/', 'node_modules/', 'public/', '*.config.*'],
+    ignores: [
+      'dist/',
+      'build/',
+      '.astro/',
+      'node_modules/',
+      'public/',
+      '*.config.*',
+      'worker-configuration.d.ts',
+    ],
   },
 
   // TypeScript files

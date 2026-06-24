@@ -46,6 +46,7 @@
     "pnpm-lock.yaml",
     "*.min.js",
     "*.min.css",
-    "src/release-notes/releases.generated.json"
+    "src/release-notes/releases.generated.json",
+    "worker-configuration.d.ts"
   ]
 }
