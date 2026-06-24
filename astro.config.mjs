@@ -21,6 +21,13 @@ export default defineConfig({
     },
   },
   vite: {
+    resolve: {
+      // react-dom/server's "browser" build needs MessageChannel, which workerd
+      // lacks; the "edge" build is built for edge runtimes and works on Workers.
+      alias: {
+        'react-dom/server': 'react-dom/server.edge',
+      },
+    },
     build: {
       rollupOptions: {
         output: {
