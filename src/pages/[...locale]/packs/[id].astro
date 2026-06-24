@@ -1,0 +1,137 @@
+---
+export const prerender = false;
+
+import Layout from '~/layouts/Layout.astro';
+import NavBar from '~/components/NavBar.astro';
+import Footer from '~/components/Footer.astro';
+import { getLocale, getUI } from '~/utils/i18n';
+import { getRuntimeEnv } from '~/lib/runtime';
+import { getPackById, parsePackRow, getPublisher } from '~/lib/packs/db';
+
+const locale = getLocale(Astro.url);
+const ui = getUI(locale);
+const id = Astro.params.id ?? '';
+const env = getRuntimeEnv(Astro.locals);
+
+const row = await getPackById(env.DB, id);
+const pack = row ? parsePackRow(row) : null;
+const publisher = row ? await getPublisher(env.DB, row.publisher_user_id) : null;
+if (!pack) Astro.response.status = 404;
+
+const publisherName = publisher?.name || publisher?.email || (pack ? pack.github_owner : '');
+const installHref = pack ? `nevoflux://pack-install?src=${pack.install_src}` : '#';
+
+const meta = pack
+  ? [
+      { label: ui.detail.version, value: pack.version },
+      { label: ui.detail.license, value: pack.license || ui.detail.none },
+      { label: ui.detail.stars, value: String(pack.stars_cached ?? 0) },
+      { label: ui.detail.downloads, value: String(pack.download_count) },
+      { label: ui.detail.publisher, value: publisherName },
+    ]
+  : [];
+---
+
+<Layout
+  title={`${pack ? pack.name : ui.detail.notFound} · ${ui.site.title}`}
+  description={pack?.description ?? ui.detail.notFound}
+>
+  <NavBar />
+  <main class="container min-h-screen py-32">
+    {
+      !pack ? (
+        <p class="mt-16 text-center text-muted">{ui.detail.notFound}</p>
+      ) : (
+        <article class="mx-auto max-w-3xl">
+          <header class="flex flex-wrap items-center gap-3">
+            <h1 class="text-3xl font-bold tracking-tight text-dark md:text-4xl">{pack.name}</h1>
+            {pack.is_official === 1 && (
+              <span class="bg-accent/10 rounded-full px-2.5 py-1 text-xs font-medium text-accent">
+                {ui.detail.official}
+              </span>
+            )}
+          </header>
+
+          {pack.description && <p class="mt-3 text-lg text-subtle">{pack.description}</p>}
+
+          <div class="mt-6 flex flex-wrap items-center gap-4">
+            <a
+              id="install-btn"
+              href={installHref}
+              data-pack-id={pack.id}
+              class="rounded-lg bg-accent px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-accent-hover"
+            >
+              {ui.detail.install}
+            </a>
+            <a
+              href={pack.github_url}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-sm font-medium text-subtle transition-colors hover:text-accent"
+            >
+              {ui.detail.source} ↗
+            </a>
+          </div>
+
+          <dl class="border-dark/10 bg-surface/30 mt-8 grid grid-cols-2 gap-x-6 gap-y-3 rounded-2xl border p-6 text-sm sm:grid-cols-3">
+            {meta.map((m) => (
+              <div>
+                <dt class="text-xs text-muted">{m.label}</dt>
+                <dd class="mt-0.5 font-medium text-dark">{m.value}</dd>
+              </div>
+            ))}
+          </dl>
+
+          <section class="mt-8">
+            <h2 class="text-sm font-semibold uppercase tracking-wide text-subtle">
+              {ui.detail.skills}
+            </h2>
+            {pack.components.skills.length === 0 ? (
+              <p class="mt-2 text-sm text-muted">{ui.detail.none}</p>
+            ) : (
+              <ul class="mt-2 space-y-1 text-sm text-dark">
+                {pack.components.skills.map((s) => (
+                  <li>
+                    <span class="font-medium">{s.name}</span>
+                    {s.description && <span class="text-subtle"> — {s.description}</span>}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+
+          <section class="mt-6">
+            <h2 class="text-sm font-semibold uppercase tracking-wide text-subtle">
+              {ui.detail.seed}
+            </h2>
+            {pack.components.seed.length === 0 ? (
+              <p class="mt-2 text-sm text-muted">{ui.detail.none}</p>
+            ) : (
+              <ul class="mt-2 space-y-1 text-sm text-dark">
+                {pack.components.seed.map((slug) => (
+                  <li>{slug}</li>
+                ))}
+              </ul>
+            )}
+          </section>
+
+          <section class="mt-6">
+            <h2 class="text-sm font-semibold uppercase tracking-wide text-subtle">
+              {ui.detail.dashboard}
+            </h2>
+            <p class="mt-2 text-sm text-dark">{pack.components.dashboard ? '✓' : ui.detail.none}</p>
+          </section>
+        </article>
+      )
+    }
+  </main>
+  <Footer />
+</Layout>
+
+<script>
+  const btn = document.getElementById('install-btn');
+  btn?.addEventListener('click', () => {
+    const id = btn.dataset.packId;
+    if (id) navigator.sendBeacon(`/api/packs/${id}/install`);
+  });
+</script>

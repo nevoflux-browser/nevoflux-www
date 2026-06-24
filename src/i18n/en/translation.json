@@ -199,6 +199,22 @@
     "downloads": "downloads",
     "stars": "stars"
   },
+  "detail": {
+    "install": "Install in NevoFlux",
+    "description": "Description",
+    "skills": "Skills",
+    "seed": "Seed pages",
+    "dashboard": "Dashboard",
+    "publisher": "Publisher",
+    "version": "Version",
+    "license": "License",
+    "stars": "Stars",
+    "downloads": "Downloads",
+    "official": "Official",
+    "source": "Source",
+    "notFound": "Pack not found.",
+    "none": "None"
+  },
   "cta": {
     "title": "Ready to Command Your Browser?",
     "subtitle": "Open source, privacy-first, and built on Firefox.",

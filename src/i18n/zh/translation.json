@@ -193,6 +193,22 @@
     "downloads": "下载",
     "stars": "星标"
   },
+  "detail": {
+    "install": "在 NevoFlux 中安装",
+    "description": "描述",
+    "skills": "技能",
+    "seed": "种子页面",
+    "dashboard": "看板",
+    "publisher": "发布者",
+    "version": "版本",
+    "license": "协议",
+    "stars": "星标",
+    "downloads": "下载量",
+    "official": "官方",
+    "source": "源",
+    "notFound": "未找到该 pack。",
+    "none": "无"
+  },
   "cta": {
     "title": "准备好掌控你的浏览器了吗？",
     "subtitle": "开源、隐私优先，基于 Firefox 构建。",
