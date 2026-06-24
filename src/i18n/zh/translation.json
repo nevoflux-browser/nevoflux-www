@@ -161,6 +161,25 @@
     },
     "build": "想自己做 Pack？查看文档 →"
   },
+  "publish": {
+    "title": "发布 Pack",
+    "subtitle": "粘贴包含 pack.toml 的 GitHub 仓库（或其子目录）。",
+    "sourceLabel": "GitHub 源",
+    "sourcePlaceholder": "github:owner/repo 或 https://github.com/owner/repo/tree/main/path",
+    "previewBtn": "预览",
+    "confirmBtn": "发布",
+    "loading": "获取中…",
+    "official": "官方",
+    "version": "版本",
+    "license": "协议",
+    "skills": "技能",
+    "seed": "种子页面",
+    "dashboard": "看板",
+    "installSrc": "安装源",
+    "none": "无",
+    "loginRequired": "请先登录再发布。",
+    "success": "已发布！正在跳转…"
+  },
   "cta": {
     "title": "准备好掌控你的浏览器了吗？",
     "subtitle": "开源、隐私优先，基于 Firefox 构建。",

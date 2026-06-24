@@ -1,0 +1,162 @@
+---
+export const prerender = true;
+
+import Layout from '~/layouts/Layout.astro';
+import NavBar from '~/components/NavBar.astro';
+import Footer from '~/components/Footer.astro';
+import { getLocale, getUI, getPath, getStaticPaths as getI18nStaticPaths } from '~/utils/i18n';
+
+export function getStaticPaths() {
+  return getI18nStaticPaths();
+}
+
+const locale = getLocale(Astro.url);
+const ui = getUI(locale);
+---
+
+<Layout title={`${ui.publish.title} · ${ui.site.title}`} description={ui.publish.subtitle}>
+  <NavBar />
+  <main class="container min-h-screen py-32">
+    <div class="mx-auto max-w-2xl">
+      <h1 class="text-3xl font-bold tracking-tight text-dark">{ui.publish.title}</h1>
+      <p class="mt-2 text-subtle">{ui.publish.subtitle}</p>
+
+      <form id="publish-form" class="mt-8 space-y-3">
+        <label for="source" class="block text-sm font-medium text-dark"
+          >{ui.publish.sourceLabel}</label
+        >
+        <input
+          id="source"
+          type="text"
+          required
+          placeholder={ui.publish.sourcePlaceholder}
+          class="border-dark/15 w-full rounded-lg border px-4 py-2.5 text-sm outline-none focus:border-accent"
+        />
+        <button
+          type="submit"
+          class="rounded-lg bg-accent px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent-hover"
+          >{ui.publish.previewBtn}</button
+        >
+      </form>
+
+      <p id="msg" class="mt-4 text-sm text-subtle"></p>
+      <div id="preview" class="border-dark/10 bg-surface/30 mt-6 hidden rounded-2xl border p-6">
+      </div>
+    </div>
+  </main>
+  <Footer />
+</Layout>
+
+<script
+  define:vars={{
+    labels: ui.publish,
+    packsUrl: getPath(locale, '/packs'),
+    loginUrl: getPath(locale, '/login'),
+  }}
+>
+  const form = document.getElementById('publish-form');
+  const sourceInput = document.getElementById('source');
+  const previewEl = document.getElementById('preview');
+  const msgEl = document.getElementById('msg');
+  let currentSource = '';
+
+  function row(label, value) {
+    const wrap = document.createElement('div');
+    wrap.className = 'flex justify-between gap-4 border-b border-dark/5 py-2 text-sm';
+    const k = document.createElement('span');
+    k.className = 'text-subtle';
+    k.textContent = label;
+    const v = document.createElement('span');
+    v.className = 'text-right font-medium text-dark';
+    v.textContent = value;
+    wrap.append(k, v);
+    return wrap;
+  }
+
+  function renderPreview(p) {
+    previewEl.textContent = '';
+
+    const head = document.createElement('div');
+    head.className = 'mb-3 flex items-center gap-2';
+    const name = document.createElement('h2');
+    name.className = 'text-xl font-bold text-dark';
+    name.textContent = p.manifest.name;
+    head.appendChild(name);
+    if (p.isOfficial) {
+      const badge = document.createElement('span');
+      badge.className = 'rounded-full bg-accent/10 px-2 py-0.5 text-xs font-medium text-accent';
+      badge.textContent = labels.official;
+      head.appendChild(badge);
+    }
+    previewEl.appendChild(head);
+
+    if (p.manifest.description) {
+      const desc = document.createElement('p');
+      desc.className = 'mb-4 text-sm text-subtle';
+      desc.textContent = p.manifest.description;
+      previewEl.appendChild(desc);
+    }
+
+    const skills = p.components.skills.map((s) => s.name).join(', ') || labels.none;
+    const seed = p.components.seed.join(', ') || labels.none;
+    previewEl.appendChild(row(labels.version, p.manifest.version));
+    previewEl.appendChild(row(labels.license, p.manifest.license || p.repoLicense || labels.none));
+    previewEl.appendChild(row(labels.skills, skills));
+    previewEl.appendChild(row(labels.seed, seed));
+    previewEl.appendChild(row(labels.dashboard, p.components.dashboard ? '✓' : labels.none));
+    previewEl.appendChild(row(labels.installSrc, p.installSrc));
+
+    const confirm = document.createElement('button');
+    confirm.className =
+      'mt-4 rounded-lg bg-accent px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent-hover';
+    confirm.textContent = labels.confirmBtn;
+    confirm.addEventListener('click', confirmPublish);
+    previewEl.appendChild(confirm);
+
+    previewEl.classList.remove('hidden');
+  }
+
+  async function confirmPublish() {
+    msgEl.textContent = labels.loading;
+    const res = await fetch('/api/packs/confirm', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ source: currentSource }),
+    });
+    if (res.status === 401) {
+      msgEl.textContent = '';
+      const a = document.createElement('a');
+      a.href = loginUrl;
+      a.className = 'text-accent underline';
+      a.textContent = labels.loginRequired;
+      msgEl.appendChild(a);
+      return;
+    }
+    const data = await res.json();
+    if (!res.ok) {
+      msgEl.textContent = data.error || 'Error';
+      return;
+    }
+    msgEl.textContent = labels.success;
+    window.location.href = packsUrl;
+  }
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    msgEl.textContent = labels.loading;
+    previewEl.classList.add('hidden');
+    currentSource = sourceInput.value.trim();
+    const res = await fetch('/api/packs/publish', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ source: currentSource }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      msgEl.textContent = data.error || 'Error';
+      return;
+    }
+    msgEl.textContent = '';
+    renderPreview(data);
+  });
+</script>

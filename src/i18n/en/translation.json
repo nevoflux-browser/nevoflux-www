@@ -167,6 +167,25 @@
     },
     "build": "Want to build your own Pack? Read the docs →"
   },
+  "publish": {
+    "title": "Publish a pack",
+    "subtitle": "Paste a GitHub repo (or a subfolder) that contains a pack.toml.",
+    "sourceLabel": "GitHub source",
+    "sourcePlaceholder": "github:owner/repo or https://github.com/owner/repo/tree/main/path",
+    "previewBtn": "Preview",
+    "confirmBtn": "Publish",
+    "loading": "Fetching…",
+    "official": "Official",
+    "version": "Version",
+    "license": "License",
+    "skills": "Skills",
+    "seed": "Seed pages",
+    "dashboard": "Dashboard",
+    "installSrc": "Install source",
+    "none": "None",
+    "loginRequired": "Please log in to publish.",
+    "success": "Published! Redirecting…"
+  },
   "cta": {
     "title": "Ready to Command Your Browser?",
     "subtitle": "Open source, privacy-first, and built on Firefox.",
