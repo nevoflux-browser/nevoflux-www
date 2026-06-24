@@ -16,8 +16,11 @@ describe('buildAuthOptions', () => {
     const opts = buildAuthOptions(env, {});
     expect(opts.secret).toBe('x'.repeat(32));
     expect(opts.baseURL).toBe('http://localhost:3000');
-    expect(opts.socialProviders?.google?.clientId).toBe('g');
-    expect(opts.socialProviders?.github?.clientId).toBe('h');
+    // Better Auth types each provider as object | function; we always pass objects.
+    const google = opts.socialProviders?.google as { clientId?: string } | undefined;
+    const github = opts.socialProviders?.github as { clientId?: string } | undefined;
+    expect(google?.clientId).toBe('g');
+    expect(github?.clientId).toBe('h');
   });
 
   it('enables account linking and registers a magic-link plugin', () => {

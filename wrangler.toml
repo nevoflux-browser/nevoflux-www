@@ -13,6 +13,7 @@ binding = "ASSETS"
 binding = "DB"
 database_name = "nevoflux-www"
 database_id = "00000000-0000-0000-0000-000000000000"
+migrations_dir = "migrations"
 
 # KV caches GitHub responses and backs rate limiting.
 [[kv_namespaces]]
