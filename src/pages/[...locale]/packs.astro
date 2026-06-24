@@ -1,164 +1,135 @@
 ---
-export const prerender = true;
+export const prerender = false;
 
 import Layout from '~/layouts/Layout.astro';
 import NavBar from '~/components/NavBar.astro';
 import Footer from '~/components/Footer.astro';
-import Button from '~/components/Button.astro';
-import { getLocale, getUI, getPath, getStaticPaths as getI18nStaticPaths } from '~/utils/i18n';
-import { DOCS_URL } from '~/constants';
-
-export function getStaticPaths() {
-  return getI18nStaticPaths();
-}
+import { getLocale, getUI, getPath } from '~/utils/i18n';
+import { getRuntimeEnv } from '~/lib/runtime';
+import { searchPacks, parsePackRow } from '~/lib/packs/db';
 
 const locale = getLocale(Astro.url);
 const ui = getUI(locale);
-const docsUrl = `${DOCS_URL}/${locale}/docs`;
-
-const items = ui.packs.items as Array<{ name: string; tagline: string; tag: string }>;
-const steps = ui.packs.how.steps as Array<{ title: string; desc: string }>;
-
-// Visual config, matched positionally to packs.items: design, career, research, okf.
-const visuals = [
-  {
-    icon: `<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>`,
-    gradient: 'from-accent/20 to-accent/5',
-    border: 'border-accent/20',
-    iconBg: 'bg-accent/10 text-accent',
-  },
-  {
-    icon: `<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>`,
-    gradient: 'from-blue-500/20 to-blue-600/5',
-    border: 'border-blue-500/20',
-    iconBg: 'bg-blue-500/10 text-blue-600',
-  },
-  {
-    icon: `<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>`,
-    gradient: 'from-purple-500/20 to-purple-600/5',
-    border: 'border-purple-500/20',
-    iconBg: 'bg-purple-500/10 text-purple-600',
-  },
-  {
-    icon: `<circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.59 13.51 6.83 3.98M15.41 6.51 8.59 10.49"/>`,
-    gradient: 'from-emerald-500/20 to-emerald-600/5',
-    border: 'border-emerald-500/20',
-    iconBg: 'bg-emerald-500/10 text-emerald-600',
-  },
-];
-
-const packs = items.map((item, i) => ({ ...item, ...visuals[i % visuals.length] }));
+const q = Astro.url.searchParams.get('q') ?? '';
+const packs = (await searchPacks(getRuntimeEnv(Astro.locals).DB, q)).map(parsePackRow);
+const href = (id: string) => getPath(locale, `/packs/${id}`);
 ---
 
-<Layout title={`${ui.packs.hero.badge} · ${ui.site.title}`} description={ui.packs.hero.subtitle}>
+<Layout title={`${ui.registry.title} · ${ui.site.title}`} description={ui.registry.subtitle}>
   <NavBar />
-  <main class="pb-24 pt-32">
-    <!-- Hero -->
-    <section class="container">
-      <div class="mx-auto max-w-3xl text-center">
-        <div
-          class="border-accent/20 bg-accent/5 mb-6 inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm font-medium text-accent"
-        >
-          <svg
-            class="h-4 w-4"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          >
-            <path d="M16.5 9.4 7.55 4.24"></path>
-            <path
-              d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"
-            ></path>
-            <path d="M3.27 6.96 12 12.01l8.73-5.05M12 22.08V12"></path>
-          </svg>
-          {ui.packs.hero.badge}
-        </div>
+  <main class="container min-h-screen py-32">
+    <div class="mx-auto max-w-5xl">
+      <header class="text-center">
         <h1 class="text-4xl font-bold tracking-tight text-dark md:text-5xl">
-          {ui.packs.hero.title}
+          {ui.registry.title}
         </h1>
-        <p class="mx-auto mt-5 max-w-2xl text-lg leading-relaxed text-subtle">
-          {ui.packs.hero.subtitle}
-        </p>
-        <div class="mt-8">
-          <Button href={getPath(locale, '/')} variant="primary">{ui.packs.hero.cta}</Button>
+        <p class="mt-3 text-lg text-subtle">{ui.registry.subtitle}</p>
+      </header>
+
+      <div class="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center">
+        <form method="get" class="flex flex-1 gap-2">
+          <input
+            type="search"
+            name="q"
+            value={q}
+            placeholder={ui.registry.searchPlaceholder}
+            class="border-dark/15 w-full rounded-lg border px-4 py-2.5 text-sm outline-none focus:border-accent"
+          />
+          <button
+            type="submit"
+            class="border-dark/15 hover:border-accent/40 rounded-lg border px-4 py-2.5 text-sm font-medium transition-colors"
+            >{ui.registry.searchBtn}</button
+          >
+        </form>
+        <div class="flex items-center gap-2">
+          <div class="border-dark/10 inline-flex overflow-hidden rounded-lg border text-sm">
+            <button id="view-card" class="px-3 py-2 font-medium">{ui.registry.viewCard}</button>
+            <button id="view-list" class="border-dark/10 border-l px-3 py-2 font-medium"
+              >{ui.registry.viewList}</button
+            >
+          </div>
+          <a
+            href={getPath(locale, '/packs/publish')}
+            class="rounded-lg bg-accent px-4 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent-hover"
+            >{ui.registry.publish}</a
+          >
         </div>
       </div>
-    </section>
 
-    <!-- Pack cards -->
-    <section class="container mt-20">
-      <div class="mx-auto grid max-w-5xl gap-8 sm:grid-cols-2">
-        {
-          packs.map((pack) => (
-            <article class="border-dark/10 bg-surface/30 overflow-hidden rounded-2xl border">
-              <div
-                class={`relative flex aspect-video items-center justify-center bg-gradient-to-br ${pack.gradient}`}
-              >
-                <div
-                  class={`inline-flex h-16 w-16 items-center justify-center rounded-2xl ${pack.iconBg}`}
+      {
+        packs.length === 0 ? (
+          <p class="mt-16 text-center text-muted">{ui.registry.empty}</p>
+        ) : (
+          <div id="results" class="mt-8" data-view="card">
+            <div id="cards" class="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {packs.map((p) => (
+                <a
+                  href={href(p.id)}
+                  class="border-dark/10 bg-surface/30 hover:border-accent/30 block rounded-2xl border p-5 transition-colors"
                 >
-                  <svg
-                    class="h-8 w-8"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  >
-                    <Fragment set:html={pack.icon} />
-                  </svg>
-                </div>
-                <span class="bg-paper/70 absolute bottom-3 right-3 rounded-md px-2 py-0.5 text-[11px] font-medium text-muted backdrop-blur-sm">
-                  {ui.packs.preview}
-                </span>
-              </div>
-              <div class="p-6">
-                <span
-                  class={`inline-flex items-center rounded-full border ${pack.border} px-2.5 py-0.5 text-xs font-medium text-subtle`}
-                >
-                  {pack.tag}
-                </span>
-                <h3 class="mt-3 text-xl font-bold text-dark">{pack.name}</h3>
-                <p class="mt-2 leading-relaxed text-subtle">{pack.tagline}</p>
-              </div>
-            </article>
-          ))
-        }
-      </div>
-    </section>
-
-    <!-- How it works -->
-    <section class="container mt-24">
-      <div class="mx-auto max-w-2xl text-center">
-        <h2 class="text-3xl font-bold tracking-tight text-dark md:text-4xl">
-          {ui.packs.how.title}
-        </h2>
-      </div>
-      <div class="mx-auto mt-12 grid max-w-4xl gap-8 md:grid-cols-3">
-        {
-          steps.map((step, i) => (
-            <div class="text-center">
-              <div class="bg-accent/10 mx-auto inline-flex h-12 w-12 items-center justify-center rounded-full text-lg font-bold text-accent">
-                {i + 1}
-              </div>
-              <h3 class="mt-4 text-lg font-semibold text-dark">{step.title}</h3>
-              <p class="mt-2 leading-relaxed text-subtle">{step.desc}</p>
+                  <div class="flex items-center gap-2">
+                    <h3 class="font-bold text-dark">{p.name}</h3>
+                    {p.is_official === 1 && (
+                      <span class="bg-accent/10 rounded-full px-2 py-0.5 text-xs font-medium text-accent">
+                        {ui.registry.official}
+                      </span>
+                    )}
+                  </div>
+                  <p class="mt-2 line-clamp-2 text-sm text-subtle">{p.description}</p>
+                  <div class="mt-3 text-xs text-muted">
+                    v{p.version} · ★ {p.stars_cached ?? 0} · ⤓ {p.download_count}
+                  </div>
+                </a>
+              ))}
             </div>
-          ))
-        }
-      </div>
-    </section>
-
-    <!-- Build your own -->
-    <div class="container mt-20 text-center">
-      <a href={docsUrl} class="text-sm font-medium text-muted transition-colors hover:text-accent">
-        {ui.packs.build}
-      </a>
+            <div id="list" class="divide-dark/5 border-dark/10 hidden divide-y rounded-2xl border">
+              {packs.map((p) => (
+                <a href={href(p.id)} class="hover:bg-surface/40 flex items-center gap-3 p-4">
+                  <span class="font-medium text-dark">{p.name}</span>
+                  {p.is_official === 1 && (
+                    <span class="bg-accent/10 rounded-full px-2 py-0.5 text-xs font-medium text-accent">
+                      {ui.registry.official}
+                    </span>
+                  )}
+                  <span class="line-clamp-1 flex-1 text-sm text-subtle">{p.description}</span>
+                  <span class="shrink-0 text-xs text-muted">
+                    v{p.version} · ★ {p.stars_cached ?? 0} · ⤓ {p.download_count}
+                  </span>
+                </a>
+              ))}
+            </div>
+          </div>
+        )
+      }
     </div>
   </main>
   <Footer />
 </Layout>
+
+<script>
+  const results = document.getElementById('results');
+  const cards = document.getElementById('cards');
+  const list = document.getElementById('list');
+  const btnCard = document.getElementById('view-card');
+  const btnList = document.getElementById('view-list');
+
+  function apply(view: string) {
+    if (!results || !cards || !list) return;
+    results.dataset.view = view;
+    const card = view !== 'list';
+    cards.classList.toggle('hidden', !card);
+    list.classList.toggle('hidden', card);
+    btnCard?.classList.toggle('text-accent', card);
+    btnList?.classList.toggle('text-accent', !card);
+  }
+
+  apply(localStorage.getItem('packs-view') || 'card');
+  btnCard?.addEventListener('click', () => {
+    localStorage.setItem('packs-view', 'card');
+    apply('card');
+  });
+  btnList?.addEventListener('click', () => {
+    localStorage.setItem('packs-view', 'list');
+    apply('list');
+  });
+</script>

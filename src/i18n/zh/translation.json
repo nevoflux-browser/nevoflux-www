@@ -180,6 +180,19 @@
     "loginRequired": "请先登录再发布。",
     "success": "已发布！正在跳转…"
   },
+  "registry": {
+    "title": "PackHub",
+    "subtitle": "发现并安装适合你浏览器的 pack。",
+    "searchPlaceholder": "按名称或描述搜索 pack",
+    "searchBtn": "搜索",
+    "publish": "发布 Pack",
+    "viewList": "列表",
+    "viewCard": "卡片",
+    "empty": "还没有 pack。来发布第一个吧。",
+    "official": "官方",
+    "downloads": "下载",
+    "stars": "星标"
+  },
   "cta": {
     "title": "准备好掌控你的浏览器了吗？",
     "subtitle": "开源、隐私优先，基于 Firefox 构建。",

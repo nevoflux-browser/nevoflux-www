@@ -186,6 +186,19 @@
     "loginRequired": "Please log in to publish.",
     "success": "Published! Redirecting…"
   },
+  "registry": {
+    "title": "PackHub",
+    "subtitle": "Discover and install packs for your browser.",
+    "searchPlaceholder": "Search packs by name or description",
+    "searchBtn": "Search",
+    "publish": "Publish a pack",
+    "viewList": "List",
+    "viewCard": "Cards",
+    "empty": "No packs yet. Be the first to publish one.",
+    "official": "Official",
+    "downloads": "downloads",
+    "stars": "stars"
+  },
   "cta": {
     "title": "Ready to Command Your Browser?",
     "subtitle": "Open source, privacy-first, and built on Firefox.",
