@@ -18,6 +18,19 @@
     "label": "EN",
     "switchTo": "ZH"
   },
+  "auth": {
+    "login": "Log in",
+    "logout": "Log out",
+    "title": "Sign in to NevoFlux",
+    "subtitle": "Publish and manage your packs.",
+    "google": "Continue with Google",
+    "github": "Continue with GitHub",
+    "emailLabel": "Email",
+    "emailPlaceholder": "you@example.com",
+    "magicLink": "Email me a sign-in link",
+    "magicLinkSent": "Check your inbox for a sign-in link.",
+    "or": "or"
+  },
   "hero": {
     "tagline": "The AI-Native Browser",
     "title": "Don't Just Browse. Command.",

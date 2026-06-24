@@ -18,6 +18,19 @@
     "label": "中文",
     "switchTo": "EN"
   },
+  "auth": {
+    "login": "登录",
+    "logout": "退出登录",
+    "title": "登录 NevoFlux",
+    "subtitle": "发布和管理你的 pack。",
+    "google": "使用 Google 继续",
+    "github": "使用 GitHub 继续",
+    "emailLabel": "邮箱",
+    "emailPlaceholder": "you@example.com",
+    "magicLink": "给我发送登录链接",
+    "magicLinkSent": "请查收邮箱里的登录链接。",
+    "or": "或"
+  },
   "hero": {
     "tagline": "AI 原生浏览器",
     "title": "不只是浏览，而是掌控。",
