@@ -1,4 +1,4 @@
-import type { PackPreview } from '~/lib/packs/types';
+import type { PackPreview, PackComponents } from '~/lib/packs/types';
 
 export interface PackRow {
   id: string;
@@ -134,4 +134,28 @@ export async function incrementDownload(db: D1Database, id: string): Promise<voi
     .prepare('UPDATE pack SET download_count = download_count + 1 WHERE id = ?1')
     .bind(id)
     .run();
+}
+
+/** A pack row with its JSON columns decoded, ready for rendering. */
+export interface PackView extends Omit<PackRow, 'authors' | 'components'> {
+  authors: string[];
+  components: PackComponents;
+}
+
+export function parsePackRow(row: PackRow): PackView {
+  const authors = row.authors ? (JSON.parse(row.authors) as string[]) : [];
+  const components = row.components
+    ? (JSON.parse(row.components) as PackComponents)
+    : { skills: [], seed: [], dashboard: false, canvasTools: [] };
+  return { ...row, authors, components };
+}
+
+export async function getPublisher(
+  db: D1Database,
+  userId: string
+): Promise<{ name: string | null; email: string | null } | null> {
+  return await db
+    .prepare('SELECT name, email FROM user WHERE id = ?1')
+    .bind(userId)
+    .first<{ name: string | null; email: string | null }>();
 }

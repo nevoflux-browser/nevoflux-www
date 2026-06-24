@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { packRowFromPreview } from '~/lib/packs/db';
+import { packRowFromPreview, parsePackRow } from '~/lib/packs/db';
 import type { PackPreview } from '~/lib/packs/types';
 
 const preview: PackPreview = {
@@ -43,5 +43,22 @@ describe('packRowFromPreview', () => {
     );
     expect(root.github_subdir).toBe('');
     expect(root.is_official).toBe(0);
+  });
+});
+
+describe('parsePackRow', () => {
+  it('decodes the authors and components JSON columns', () => {
+    const row = packRowFromPreview(preview, 'user-1', 'pack-1', 1000);
+    const view = parsePackRow(row);
+    expect(view.components.dashboard).toBe(true);
+    expect(view.components.skills).toEqual([{ name: 'evaluate' }]);
+    expect(view.authors).toEqual(['A <a@b>']);
+  });
+
+  it('defaults empty when JSON columns are null', () => {
+    const row = packRowFromPreview(preview, 'u', 'p', 1);
+    const view = parsePackRow({ ...row, authors: null, components: null });
+    expect(view.authors).toEqual([]);
+    expect(view.components).toEqual({ skills: [], seed: [], dashboard: false, canvasTools: [] });
   });
 });
