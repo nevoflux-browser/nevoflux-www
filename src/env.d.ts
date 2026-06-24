@@ -16,6 +16,7 @@ interface Env {
   GOOGLE_CLIENT_SECRET: string;
   GITHUB_OAUTH_CLIENT_ID: string;
   GITHUB_OAUTH_CLIENT_SECRET: string;
+  GITHUB_TOKEN: string;
   RESEND_API_KEY: string;
   RESEND_FROM?: string;
 }

@@ -44,6 +44,9 @@ importers:
       react-dom:
         specifier: ^19.1.0
         version: 19.2.4(react@19.2.4)
+      smol-toml:
+        specifier: ^1.7.0
+        version: 1.7.0
       tailwind-merge:
         specifier: ^3.0.2
         version: 3.5.0
@@ -4680,8 +4683,8 @@ packages:
     engines: {node: '>=14.0.0', npm: '>=6.0.0'}
     hasBin: true
 
-  smol-toml@1.6.0:
-    resolution: {integrity: sha512-4zemZi0HvTnYwLfrpk/CF9LOd9Lt87kAt50GnqhMpyF9U3poDAP2+iukq2bZsO/ufegbYehBkqINbsWxj4l4cw==}
+  smol-toml@1.7.0:
+    resolution: {integrity: sha512-aqVvWoyO21L23mb+drl4RmMXbf6N7FdHjAhTRA9ZBL7apWBgfWC16KjrASI+1p9GAroljyMHj6fK67i0UiTNvQ==}
     engines: {node: '>= 18'}
 
   source-map-js@1.2.1:
@@ -5649,7 +5652,7 @@ snapshots:
       remark-rehype: 11.1.2
       remark-smartypants: 3.0.2
       shiki: 3.23.0
-      smol-toml: 1.6.0
+      smol-toml: 1.7.0
       unified: 11.0.5
       unist-util-remove-position: 5.0.0
       unist-util-visit: 5.1.0
@@ -7496,7 +7499,7 @@ snapshots:
       rehype: 13.0.2
       semver: 7.7.4
       shiki: 3.23.0
-      smol-toml: 1.6.0
+      smol-toml: 1.7.0
       svgo: 4.0.0
       tinyexec: 1.0.2
       tinyglobby: 0.2.15
@@ -10431,7 +10434,7 @@ snapshots:
       arg: 5.0.2
       sax: 1.4.4
 
-  smol-toml@1.6.0: {}
+  smol-toml@1.7.0: {}
 
   source-map-js@1.2.1: {}
 
