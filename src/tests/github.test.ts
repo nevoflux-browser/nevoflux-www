@@ -70,8 +70,6 @@ describe('fetchPackPreview', () => {
 
   it('throws when the repo is not found', async () => {
     const f = mockFetch({});
-    await expect(fetchPackPreview(env, { owner: 'o', repo: 'r' }, f)).rejects.toThrow(
-      /repo not found/i
-    );
+    await expect(fetchPackPreview(env, { owner: 'o', repo: 'r' }, f)).rejects.toThrow(/HTTP 404/);
   });
 });

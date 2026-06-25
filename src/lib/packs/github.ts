@@ -29,7 +29,16 @@ export async function fetchPackPreview(
   // 1. Repo metadata (stars, default branch, license).
   const repoRes = await fetchImpl(`${GH_API}/repos/${owner}/${repo}`, { headers: ghHeaders(env) });
   if (!repoRes.ok) {
-    throw new Error(`GitHub repo not found: ${owner}/${repo} (${repoRes.status})`);
+    const body = await repoRes.text().catch(() => '');
+    let detail = '';
+    try {
+      const j = JSON.parse(body) as { message?: string };
+      if (typeof j.message === 'string') detail = ` — ${j.message}`;
+    } catch {
+      // non-JSON error body; ignore
+    }
+    // 401 = bad token, 403 = rate limit / org SSO / forbidden, 404 = missing or private.
+    throw new Error(`GitHub request for ${owner}/${repo} failed (HTTP ${repoRes.status})${detail}`);
   }
   const meta = asObj(await repoRes.json());
   const license = asObj(meta.license);
@@ -39,7 +48,13 @@ export async function fetchPackPreview(
 
   // 2. pack.toml (raw).
   const tomlRes = await fetchImpl(`${GH_RAW}/${owner}/${repo}/${ref}/${subdirPrefix}pack.toml`);
-  if (!tomlRes.ok) throw new Error('pack.toml not found at the given source');
+  if (!tomlRes.ok) {
+    throw new Error(
+      tomlRes.status === 404
+        ? `No pack.toml at ${subdirPrefix}pack.toml on ${owner}/${repo}@${ref}`
+        : `Could not fetch pack.toml (HTTP ${tomlRes.status})`
+    );
+  }
   const tomlText = await tomlRes.text();
   let toml: Obj;
   try {
