@@ -140,11 +140,28 @@ const docsUrl = `${DOCS_URL}/${locale}/docs`;
   if (slot) {
     const { data } = await authClient.getSession();
     if (data?.user) {
-      const name = data.user.name || data.user.email || '';
+      const user = data.user;
+      const name = user.name || user.email || '';
       slot.textContent = '';
-      const nameEl = document.createElement('span');
-      nameEl.className = 'mr-3 hidden sm:inline';
-      nameEl.textContent = name;
+      slot.className = 'inline-flex items-center gap-2 text-sm font-medium text-subtle';
+
+      let avatar: HTMLElement;
+      if (user.image) {
+        const img = document.createElement('img');
+        img.src = user.image;
+        img.alt = name;
+        img.referrerPolicy = 'no-referrer';
+        img.className = 'border-dark/10 h-7 w-7 rounded-full border object-cover';
+        avatar = img;
+      } else {
+        const fallback = document.createElement('span');
+        fallback.className =
+          'bg-accent/10 text-accent flex h-7 w-7 items-center justify-center rounded-full text-xs font-semibold';
+        fallback.textContent = (name.trim()[0] || '?').toUpperCase();
+        avatar = fallback;
+      }
+      avatar.title = name;
+
       const logout = document.createElement('button');
       logout.className = 'transition-colors hover:text-accent';
       logout.textContent = slot.dataset.logoutLabel ?? 'Log out';
@@ -152,7 +169,8 @@ const docsUrl = `${DOCS_URL}/${locale}/docs`;
         await authClient.signOut();
         location.reload();
       });
-      slot.appendChild(nameEl);
+
+      slot.appendChild(avatar);
       slot.appendChild(logout);
     }
   }
