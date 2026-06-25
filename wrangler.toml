@@ -1,21 +1,26 @@
 name = "nevoflux-www"
-main = "dist/_worker.js/index.js"
+pages_build_output_dir = "dist"
 compatibility_date = "2025-04-01"
 compatibility_flags = ["nodejs_compat"]
 
-[assets]
-directory = "./dist"
-binding = "ASSETS"
-
-# D1 holds users, sessions, and the pack registry.
-# database_id is a placeholder for local dev; the real id is injected at deploy time.
+# D1 holds users, sessions, and the pack registry. The id is a public resource
+# identifier (not a secret); access still requires Cloudflare auth.
 [[d1_databases]]
 binding = "DB"
 database_name = "nevoflux-www"
-database_id = "00000000-0000-0000-0000-000000000000"
+database_id = "1706c9da-dd25-4071-b4eb-74bcf9d04c70"
 migrations_dir = "migrations"
 
 # KV caches GitHub responses and backs rate limiting.
 [[kv_namespaces]]
 binding = "CACHE"
-id = "00000000000000000000000000000000"
+id = "6ffb48de05d24b18ab903edeccfd3cb5"
+
+# Non-secret vars (Pages reads these from this file during Git builds).
+# Secrets — BETTER_AUTH_SECRET, GOOGLE_CLIENT_SECRET, GITHUB_OAUTH_CLIENT_SECRET,
+# GITHUB_TOKEN, RESEND_API_KEY — are set in the Pages dashboard, never here.
+[vars]
+BETTER_AUTH_URL = "https://nevoflux.app"
+GOOGLE_CLIENT_ID = "673555029804-ctfcni1kkpva4p3vj51euomaqds9slp3.apps.googleusercontent.com"
+GITHUB_OAUTH_CLIENT_ID = "Ov23liDAupeRwj9ps4Wa"
+RESEND_FROM = "NevoFlux <login@nevoflux.app>"
