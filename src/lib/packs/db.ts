@@ -149,6 +149,22 @@ export async function deletePack(
   return (res.meta?.changes ?? 0) > 0;
 }
 
+/** Delete a pack unconditionally (admin use only — the caller must authorize). */
+export async function deletePackById(db: D1Database, id: string): Promise<boolean> {
+  const res = await db.prepare('DELETE FROM pack WHERE id = ?1').bind(id).run();
+  return (res.meta?.changes ?? 0) > 0;
+}
+
+/** Is the given email on the admin allowlist? Case-insensitive. */
+export async function isAdmin(db: D1Database, email: string | null | undefined): Promise<boolean> {
+  if (!email) return false;
+  const row = await db
+    .prepare('SELECT 1 AS ok FROM admin WHERE lower(email) = lower(?1) LIMIT 1')
+    .bind(email)
+    .first<{ ok: number }>();
+  return Boolean(row);
+}
+
 /** A pack row with its JSON columns decoded, ready for rendering. */
 export interface PackView extends Omit<PackRow, 'authors' | 'components'> {
   authors: string[];

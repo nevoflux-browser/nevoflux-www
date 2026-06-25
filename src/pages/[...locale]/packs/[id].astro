@@ -7,7 +7,7 @@ import Footer from '~/components/Footer.astro';
 import { getLocale, getUI, getPath } from '~/utils/i18n';
 import { getRuntimeEnv } from '~/lib/runtime';
 import { getSessionUser } from '~/lib/session';
-import { getPackById, parsePackRow, getPublisher } from '~/lib/packs/db';
+import { getPackById, parsePackRow, getPublisher, isAdmin } from '~/lib/packs/db';
 
 const locale = getLocale(Astro.url);
 const ui = getUI(locale);
@@ -22,9 +22,10 @@ if (!pack) Astro.response.status = 404;
 const publisherName = publisher?.name || publisher?.email || (pack ? pack.github_owner : '');
 const installHref = pack ? `nevoflux://pack-install?src=${pack.install_src}` : '#';
 
-// Only the publisher who created the pack may delete it.
+// The publisher, or any allowlisted admin, may delete a pack.
 const currentUser = pack ? await getSessionUser(Astro.locals, Astro.request) : null;
 const isOwner = !!(pack && currentUser && currentUser.id === pack.publisher_user_id);
+const canDelete = isOwner || (!!currentUser && (await isAdmin(env.DB, currentUser.email)));
 
 const meta = pack
   ? [
@@ -76,7 +77,7 @@ const meta = pack
             >
               {ui.detail.source} ↗
             </a>
-            {isOwner && (
+            {canDelete && (
               <button
                 id="delete-btn"
                 data-pack-id={pack.id}

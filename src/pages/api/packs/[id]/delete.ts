@@ -1,12 +1,12 @@
 import type { APIRoute } from 'astro';
 import { getRuntimeEnv } from '~/lib/runtime';
 import { getSessionUser } from '~/lib/session';
-import { getPackById, deletePack } from '~/lib/packs/db';
+import { getPackById, deletePack, deletePackById, isAdmin } from '~/lib/packs/db';
 import { jsonResponse } from '~/lib/http';
 
 export const prerender = false;
 
-/** POST -> delete a pack. Only the publisher may delete their own pack. */
+/** POST -> delete a pack. Allowed for the publisher, or any allowlisted admin. */
 export const POST: APIRoute = async (ctx) => {
   const id = ctx.params.id;
   if (!id) return jsonResponse({ error: 'id required' }, 400);
@@ -17,10 +17,16 @@ export const POST: APIRoute = async (ctx) => {
 
   const pack = await getPackById(env.DB, id);
   if (!pack) return jsonResponse({ error: 'Not found' }, 404);
-  if (pack.publisher_user_id !== user.id) {
+
+  const isOwner = pack.publisher_user_id === user.id;
+  const admin = await isAdmin(env.DB, user.email);
+  if (!isOwner && !admin) {
     return jsonResponse({ error: 'You can only delete packs you published' }, 403);
   }
 
-  await deletePack(env.DB, id, user.id);
+  // Owner self-delete stays scoped (defense in depth); admin deletes unconditionally.
+  if (isOwner) await deletePack(env.DB, id, user.id);
+  else await deletePackById(env.DB, id);
+
   return jsonResponse({ ok: true }, 200);
 };
