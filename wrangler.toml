@@ -16,8 +16,12 @@ migrations_dir = "migrations"
 binding = "CACHE"
 id = "6ffb48de05d24b18ab903edeccfd3cb5"
 
-# All runtime env vars + secrets are configured in the Pages dashboard
-# (Settings -> Environment variables): BETTER_AUTH_URL, BETTER_AUTH_SECRET,
-# GOOGLE_CLIENT_ID/SECRET, GITHUB_OAUTH_CLIENT_ID/SECRET, GITHUB_TOKEN,
-# RESEND_API_KEY, RESEND_FROM. wrangler.toml [vars] are NOT exposed to the
-# Pages Functions runtime, so they live in the dashboard instead.
+# Non-secret runtime vars. This is a wrangler.toml-managed Pages project, so
+# plaintext env vars MUST live here — the dashboard only manages the encrypted
+# Secrets (BETTER_AUTH_SECRET, GOOGLE_CLIENT_SECRET, GITHUB_OAUTH_CLIENT_SECRET,
+# GITHUB_TOKEN, RESEND_API_KEY).
+[vars]
+BETTER_AUTH_URL = "https://nevoflux.app"
+GOOGLE_CLIENT_ID = "673555029804-ctfcni1kkpva4p3vj51euomaqds9slp3.apps.googleusercontent.com"
+GITHUB_OAUTH_CLIENT_ID = "Ov23liDAupeRwj9ps4Wa"
+RESEND_FROM = "NevoFlux <login@nevoflux.app>"
