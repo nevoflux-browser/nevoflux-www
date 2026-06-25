@@ -4,8 +4,9 @@ export const prerender = false;
 import Layout from '~/layouts/Layout.astro';
 import NavBar from '~/components/NavBar.astro';
 import Footer from '~/components/Footer.astro';
-import { getLocale, getUI } from '~/utils/i18n';
+import { getLocale, getUI, getPath } from '~/utils/i18n';
 import { getRuntimeEnv } from '~/lib/runtime';
+import { getSessionUser } from '~/lib/session';
 import { getPackById, parsePackRow, getPublisher } from '~/lib/packs/db';
 
 const locale = getLocale(Astro.url);
@@ -20,6 +21,10 @@ if (!pack) Astro.response.status = 404;
 
 const publisherName = publisher?.name || publisher?.email || (pack ? pack.github_owner : '');
 const installHref = pack ? `nevoflux://pack-install?src=${pack.install_src}` : '#';
+
+// Only the publisher who created the pack may delete it.
+const currentUser = pack ? await getSessionUser(Astro.locals, Astro.request) : null;
+const isOwner = !!(pack && currentUser && currentUser.id === pack.publisher_user_id);
 
 const meta = pack
   ? [
@@ -71,6 +76,17 @@ const meta = pack
             >
               {ui.detail.source} ↗
             </a>
+            {isOwner && (
+              <button
+                id="delete-btn"
+                data-pack-id={pack.id}
+                data-confirm={ui.detail.deleteConfirm}
+                data-packs-url={getPath(locale, '/packs')}
+                class="ml-auto text-sm font-medium text-red-600 transition-colors hover:text-red-700"
+              >
+                {ui.detail.delete}
+              </button>
+            )}
           </div>
 
           <dl class="border-dark/10 bg-surface/30 mt-8 grid grid-cols-2 gap-x-6 gap-y-3 rounded-2xl border p-6 text-sm sm:grid-cols-3">
@@ -133,5 +149,18 @@ const meta = pack
   btn?.addEventListener('click', () => {
     const id = btn.dataset.packId;
     if (id) navigator.sendBeacon(`/api/packs/${id}/install`);
+  });
+
+  const del = document.getElementById('delete-btn');
+  del?.addEventListener('click', async () => {
+    const id = del.dataset.packId;
+    if (!id || !window.confirm(del.dataset.confirm || 'Delete this pack?')) return;
+    const res = await fetch(`/api/packs/${id}/delete`, { method: 'POST' });
+    if (res.ok) {
+      window.location.href = del.dataset.packsUrl || '/packs';
+    } else {
+      const data = (await res.json().catch(() => ({}))) as { error?: string };
+      window.alert(data.error || `Delete failed (${res.status})`);
+    }
   });
 </script>

@@ -207,7 +207,9 @@
     "official": "官方",
     "source": "源",
     "notFound": "未找到该 pack。",
-    "none": "无"
+    "none": "无",
+    "delete": "删除 pack",
+    "deleteConfirm": "确定从 registry 删除这个 pack 吗？此操作不可撤销。"
   },
   "cta": {
     "title": "准备好掌控你的浏览器了吗？",

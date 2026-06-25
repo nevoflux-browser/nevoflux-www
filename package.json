@@ -7,7 +7,7 @@
     "dev": "astro dev --port 3000",
     "build": "node scripts/fetch-release-notes.mjs && astro build",
     "fetch:releases": "node scripts/fetch-release-notes.mjs",
-    "preview": "astro build && wrangler dev --port 3000",
+    "preview": "astro build && wrangler pages dev dist --port 3000",
     "typecheck": "astro check",
     "lint": "eslint . --max-warnings=0 --cache",
     "lint:fix": "eslint . --fix",

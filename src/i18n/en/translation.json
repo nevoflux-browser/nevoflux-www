@@ -213,7 +213,9 @@
     "official": "Official",
     "source": "Source",
     "notFound": "Pack not found.",
-    "none": "None"
+    "none": "None",
+    "delete": "Delete pack",
+    "deleteConfirm": "Delete this pack from the registry? This cannot be undone."
   },
   "cta": {
     "title": "Ready to Command Your Browser?",

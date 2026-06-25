@@ -136,6 +136,19 @@ export async function incrementDownload(db: D1Database, id: string): Promise<voi
     .run();
 }
 
+/** Delete a pack, but only if it belongs to the given publisher. Returns true if removed. */
+export async function deletePack(
+  db: D1Database,
+  id: string,
+  publisherUserId: string
+): Promise<boolean> {
+  const res = await db
+    .prepare('DELETE FROM pack WHERE id = ?1 AND publisher_user_id = ?2')
+    .bind(id, publisherUserId)
+    .run();
+  return (res.meta?.changes ?? 0) > 0;
+}
+
 /** A pack row with its JSON columns decoded, ready for rendering. */
 export interface PackView extends Omit<PackRow, 'authors' | 'components'> {
   authors: string[];
