@@ -42,11 +42,51 @@ const href = (id: string) => getPath(locale, `/packs/${id}`);
           >
         </form>
         <div class="flex items-center gap-2">
-          <div class="border-dark/10 inline-flex overflow-hidden rounded-lg border text-sm">
-            <button id="view-card" class="px-3 py-2 font-medium">{ui.registry.viewCard}</button>
-            <button id="view-list" class="border-dark/10 border-l px-3 py-2 font-medium"
-              >{ui.registry.viewList}</button
+          <div class="border-dark/10 inline-flex overflow-hidden rounded-lg border">
+            <button
+              id="view-card"
+              class="inline-flex items-center justify-center p-2 transition-colors"
+              aria-label={ui.registry.viewCard}
+              title={ui.registry.viewCard}
             >
+              <svg
+                class="h-4 w-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+                <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+                <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+                <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+              </svg>
+            </button>
+            <button
+              id="view-list"
+              class="border-dark/10 inline-flex items-center justify-center border-l p-2 transition-colors"
+              aria-label={ui.registry.viewList}
+              title={ui.registry.viewList}
+            >
+              <svg
+                class="h-4 w-4"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line x1="8" y1="6" x2="21" y2="6"></line>
+                <line x1="8" y1="12" x2="21" y2="12"></line>
+                <line x1="8" y1="18" x2="21" y2="18"></line>
+                <line x1="3" y1="6" x2="3.01" y2="6"></line>
+                <line x1="3" y1="12" x2="3.01" y2="12"></line>
+                <line x1="3" y1="18" x2="3.01" y2="18"></line>
+              </svg>
+            </button>
           </div>
           <a
             href={getPath(locale, '/packs/publish')}
