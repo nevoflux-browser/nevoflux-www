@@ -12,6 +12,10 @@ export function getStaticPaths() {
 
 const locale = getLocale(Astro.url);
 const ui = getUI(locale);
+
+const inputClass =
+  'border-dark/15 focus:border-accent w-full rounded-lg border px-3 py-2 text-sm outline-none';
+const labelClass = 'block text-sm font-medium text-dark';
 ---
 
 <Layout title={`${ui.publish.title} · ${ui.site.title}`} description={ui.publish.subtitle}>
@@ -21,16 +25,14 @@ const ui = getUI(locale);
       <h1 class="text-3xl font-bold tracking-tight text-dark">{ui.publish.title}</h1>
       <p class="mt-2 text-subtle">{ui.publish.subtitle}</p>
 
-      <form id="publish-form" class="mt-8 space-y-3">
-        <label for="source" class="block text-sm font-medium text-dark"
-          >{ui.publish.sourceLabel}</label
-        >
+      <form id="source-form" class="mt-8 space-y-3">
+        <label for="source" class={labelClass}>{ui.publish.sourceLabel}</label>
         <input
           id="source"
           type="text"
           required
           placeholder={ui.publish.sourcePlaceholder}
-          class="border-dark/15 w-full rounded-lg border px-4 py-2.5 text-sm outline-none focus:border-accent"
+          class={inputClass}
         />
         <button
           type="submit"
@@ -40,7 +42,68 @@ const ui = getUI(locale);
       </form>
 
       <p id="msg" class="mt-4 text-sm text-subtle"></p>
-      <div id="preview" class="border-dark/10 bg-surface/30 mt-6 hidden rounded-2xl border p-6">
+
+      <!-- Editor (revealed after a successful preview) -->
+      <div id="editor" class="mt-8 hidden">
+        <h2 class="text-lg font-bold text-dark">{ui.publish.editTitle}</h2>
+        <p id="preview-info" class="mt-1 text-xs text-muted"></p>
+
+        <div class="mt-5 space-y-4">
+          <div>
+            <label for="f-displayName" class={labelClass}>{ui.publish.displayName}</label>
+            <input id="f-displayName" type="text" class={`mt-1 ${inputClass}`} />
+          </div>
+          <div>
+            <label for="f-slug" class={labelClass}>{ui.publish.slug}</label>
+            <input id="f-slug" type="text" class={`mt-1 ${inputClass}`} />
+          </div>
+          <div>
+            <label for="f-summary" class={labelClass}>{ui.publish.summary}</label>
+            <input id="f-summary" type="text" class={`mt-1 ${inputClass}`} />
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label for="f-version" class={labelClass}>{ui.publish.version}</label>
+              <input id="f-version" type="text" class={`mt-1 ${inputClass}`} />
+            </div>
+            <div>
+              <label for="f-releaseTags" class={labelClass}>{ui.publish.releaseTags}</label>
+              <input id="f-releaseTags" type="text" class={`mt-1 ${inputClass}`} />
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label for="f-categories" class={labelClass}>{ui.publish.categories}</label>
+              <input id="f-categories" type="text" class={`mt-1 ${inputClass}`} />
+            </div>
+            <div>
+              <label for="f-topics" class={labelClass}>{ui.publish.topics}</label>
+              <input id="f-topics" type="text" class={`mt-1 ${inputClass}`} />
+            </div>
+          </div>
+          <div>
+            <label for="f-readme" class={labelClass}>{ui.publish.readme}</label>
+            <textarea id="f-readme" rows="8" class={`mt-1 font-mono ${inputClass}`}></textarea>
+          </div>
+          <div>
+            <label for="f-skills" class={labelClass}>{ui.publish.skills}</label>
+            <textarea id="f-skills" rows="4" class={`mt-1 font-mono ${inputClass}`}></textarea>
+          </div>
+          <div>
+            <label for="f-seed" class={labelClass}>{ui.publish.seed}</label>
+            <textarea id="f-seed" rows="4" class={`mt-1 font-mono ${inputClass}`}></textarea>
+          </div>
+          <div>
+            <label for="f-dashboard" class={labelClass}>{ui.publish.dashboard}</label>
+            <textarea id="f-dashboard" rows="3" class={`mt-1 font-mono ${inputClass}`}></textarea>
+          </div>
+        </div>
+
+        <button
+          id="confirm-btn"
+          class="mt-6 rounded-lg bg-accent px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent-hover"
+          >{ui.publish.confirmBtn}</button
+        >
       </div>
     </div>
   </main>
@@ -49,103 +112,40 @@ const ui = getUI(locale);
 
 <script
   define:vars={{
-    labels: ui.publish,
     packsUrl: getPath(locale, '/packs'),
     loginUrl: getPath(locale, '/login'),
+    t: {
+      loading: ui.publish.loading,
+      loginRequired: ui.publish.loginRequired,
+      success: ui.publish.success,
+      official: ui.publish.official,
+    },
   }}
 >
-  const form = document.getElementById('publish-form');
+  const sourceForm = document.getElementById('source-form');
   const sourceInput = document.getElementById('source');
-  const previewEl = document.getElementById('preview');
-  const msgEl = document.getElementById('msg');
+  const msg = document.getElementById('msg');
+  const editor = document.getElementById('editor');
+  const info = document.getElementById('preview-info');
+  const confirmBtn = document.getElementById('confirm-btn');
   let currentSource = '';
 
-  function row(label, value) {
-    const wrap = document.createElement('div');
-    wrap.className = 'flex justify-between gap-4 border-b border-dark/5 py-2 text-sm';
-    const k = document.createElement('span');
-    k.className = 'text-subtle';
-    k.textContent = label;
-    const v = document.createElement('span');
-    v.className = 'text-right font-medium text-dark';
-    v.textContent = value;
-    wrap.append(k, v);
-    return wrap;
-  }
+  const setVal = (id, v) => {
+    const el = document.getElementById(id);
+    if (el) el.value = v ?? '';
+  };
+  const getVal = (id) => document.getElementById(id)?.value ?? '';
+  const splitCsv = (s) =>
+    s
+      .split(',')
+      .map((x) => x.trim())
+      .filter(Boolean);
 
-  function renderPreview(p) {
-    previewEl.textContent = '';
-
-    const head = document.createElement('div');
-    head.className = 'mb-3 flex items-center gap-2';
-    const name = document.createElement('h2');
-    name.className = 'text-xl font-bold text-dark';
-    name.textContent = p.manifest.name;
-    head.appendChild(name);
-    if (p.isOfficial) {
-      const badge = document.createElement('span');
-      badge.className = 'rounded-full bg-accent/10 px-2 py-0.5 text-xs font-medium text-accent';
-      badge.textContent = labels.official;
-      head.appendChild(badge);
-    }
-    previewEl.appendChild(head);
-
-    if (p.manifest.description) {
-      const desc = document.createElement('p');
-      desc.className = 'mb-4 text-sm text-subtle';
-      desc.textContent = p.manifest.description;
-      previewEl.appendChild(desc);
-    }
-
-    const skills = p.components.skills.map((s) => s.name).join(', ') || labels.none;
-    const seed = p.components.seed.join(', ') || labels.none;
-    previewEl.appendChild(row(labels.version, p.manifest.version));
-    previewEl.appendChild(row(labels.license, p.manifest.license || p.repoLicense || labels.none));
-    previewEl.appendChild(row(labels.skills, skills));
-    previewEl.appendChild(row(labels.seed, seed));
-    previewEl.appendChild(row(labels.dashboard, p.components.dashboard ? '✓' : labels.none));
-    previewEl.appendChild(row(labels.installSrc, p.installSrc));
-
-    const confirm = document.createElement('button');
-    confirm.className =
-      'mt-4 rounded-lg bg-accent px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent-hover';
-    confirm.textContent = labels.confirmBtn;
-    confirm.addEventListener('click', confirmPublish);
-    previewEl.appendChild(confirm);
-
-    previewEl.classList.remove('hidden');
-  }
-
-  async function confirmPublish() {
-    msgEl.textContent = labels.loading;
-    const res = await fetch('/api/packs/confirm', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ source: currentSource }),
-    });
-    if (res.status === 401) {
-      msgEl.textContent = '';
-      const a = document.createElement('a');
-      a.href = loginUrl;
-      a.className = 'text-accent underline';
-      a.textContent = labels.loginRequired;
-      msgEl.appendChild(a);
-      return;
-    }
-    const data = await res.json();
-    if (!res.ok) {
-      msgEl.textContent = data.error || 'Error';
-      return;
-    }
-    msgEl.textContent = labels.success;
-    window.location.href = packsUrl;
-  }
-
-  form?.addEventListener('submit', async (e) => {
+  sourceForm?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    msgEl.textContent = labels.loading;
-    previewEl.classList.add('hidden');
-    currentSource = sourceInput.value.trim();
+    if (msg) msg.textContent = t.loading;
+    editor?.classList.add('hidden');
+    currentSource = (sourceInput?.value ?? '').trim();
     const res = await fetch('/api/packs/publish', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -153,10 +153,73 @@ const ui = getUI(locale);
     });
     const data = await res.json();
     if (!res.ok) {
-      msgEl.textContent = data.error || 'Error';
+      if (msg) msg.textContent = data.error || 'Error';
       return;
     }
-    msgEl.textContent = '';
-    renderPreview(data);
+    if (msg) msg.textContent = '';
+
+    const m = data.manifest;
+    const c = data.components;
+    setVal('f-displayName', m.name);
+    setVal('f-slug', m.namespace ? `${m.namespace}/${m.name}` : m.name);
+    setVal('f-summary', m.description || '');
+    setVal('f-version', m.version);
+    setVal('f-releaseTags', '');
+    setVal('f-categories', '');
+    setVal('f-topics', '');
+    setVal('f-readme', data.readme || '');
+    setVal('f-skills', (c.skills || []).map((s) => s.name).join('\n'));
+    setVal('f-seed', (c.seed || []).join('\n'));
+    setVal('f-dashboard', c.dashboard ? 'Yes' : '');
+
+    if (info) {
+      const bits = [];
+      if (data.isOfficial) bits.push(t.official);
+      bits.push('★ ' + data.stars);
+      if (data.repoLicense) bits.push(data.repoLicense);
+      bits.push(data.installSrc);
+      info.textContent = bits.join('  ·  ');
+    }
+    editor?.classList.remove('hidden');
+  });
+
+  confirmBtn?.addEventListener('click', async () => {
+    if (msg) msg.textContent = t.loading;
+    const edits = {
+      displayName: getVal('f-displayName'),
+      slug: getVal('f-slug'),
+      summary: getVal('f-summary'),
+      version: getVal('f-version'),
+      releaseTags: splitCsv(getVal('f-releaseTags')),
+      categories: splitCsv(getVal('f-categories')),
+      topics: splitCsv(getVal('f-topics')),
+      readme: getVal('f-readme'),
+      skillsText: getVal('f-skills'),
+      seedText: getVal('f-seed'),
+      dashboardText: getVal('f-dashboard'),
+    };
+    const res = await fetch('/api/packs/confirm', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ source: currentSource, edits }),
+    });
+    if (res.status === 401) {
+      if (msg) {
+        msg.textContent = '';
+        const a = document.createElement('a');
+        a.href = loginUrl;
+        a.className = 'text-accent underline';
+        a.textContent = t.loginRequired;
+        msg.appendChild(a);
+      }
+      return;
+    }
+    const data = await res.json();
+    if (!res.ok) {
+      if (msg) msg.textContent = data.error || 'Error';
+      return;
+    }
+    if (msg) msg.textContent = t.success;
+    window.location.href = packsUrl;
   });
 </script>

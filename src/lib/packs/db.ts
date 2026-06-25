@@ -1,4 +1,4 @@
-import type { PackPreview, PackComponents } from '~/lib/packs/types';
+import type { PackPreview, PackComponents, PackMetadata, PackEdits } from '~/lib/packs/types';
 
 export interface PackRow {
   id: string;
@@ -19,6 +19,7 @@ export interface PackRow {
   publisher_user_id: string;
   authors: string | null; // JSON-encoded string[]
   components: string | null; // JSON-encoded PackComponents
+  metadata: string | null; // JSON-encoded PackMetadata (publisher-editable)
   download_count: number;
   stars_cached: number | null;
   stars_fetched_at: number | null;
@@ -26,22 +27,35 @@ export interface PackRow {
   updated_at: number;
 }
 
-/** Pure mapping from a resolved preview to a DB row. */
+/** Pure mapping from a resolved preview (+ optional publisher edits) to a DB row. */
 export function packRowFromPreview(
   preview: PackPreview,
   publisherUserId: string,
   id: string,
-  now: number
+  now: number,
+  edits?: PackEdits
 ): PackRow {
+  const m = preview.manifest;
+  const metadata: PackMetadata = {
+    displayName: edits?.displayName?.trim() || m.name,
+    slug: edits?.slug?.trim() || (m.namespace ? `${m.namespace}/${m.name}` : m.name),
+    releaseTags: edits?.releaseTags ?? [],
+    categories: edits?.categories ?? [],
+    topics: edits?.topics ?? [],
+    readme: edits?.readme ?? preview.readme ?? '',
+    skillsText: edits?.skillsText ?? preview.components.skills.map((s) => s.name).join('\n'),
+    seedText: edits?.seedText ?? preview.components.seed.join('\n'),
+    dashboardText: edits?.dashboardText ?? (preview.components.dashboard ? 'Yes' : ''),
+  };
   return {
     id,
-    name: preview.manifest.name,
-    namespace: preview.manifest.namespace ?? null,
-    description: preview.manifest.description ?? null,
-    version: preview.manifest.version,
-    license: preview.manifest.license ?? preview.repoLicense ?? null,
-    protocol: preview.manifest.protocol,
-    min_nevoflux: preview.manifest.minNevoflux,
+    name: m.name,
+    namespace: m.namespace ?? null,
+    description: edits?.summary?.trim() || m.description || null,
+    version: edits?.version?.trim() || m.version,
+    license: m.license ?? preview.repoLicense ?? null,
+    protocol: m.protocol,
+    min_nevoflux: m.minNevoflux,
     github_owner: preview.source.owner,
     github_repo: preview.source.repo,
     github_ref: preview.source.ref ?? null,
@@ -50,8 +64,9 @@ export function packRowFromPreview(
     install_src: preview.installSrc,
     is_official: preview.isOfficial ? 1 : 0,
     publisher_user_id: publisherUserId,
-    authors: preview.manifest.authors ? JSON.stringify(preview.manifest.authors) : null,
+    authors: m.authors ? JSON.stringify(m.authors) : null,
     components: JSON.stringify(preview.components),
+    metadata: JSON.stringify(metadata),
     download_count: 0,
     stars_cached: preview.stars,
     stars_fetched_at: now,
@@ -66,16 +81,16 @@ export async function upsertPack(db: D1Database, p: PackRow): Promise<void> {
     .prepare(
       `INSERT INTO pack (id,name,namespace,description,version,license,protocol,min_nevoflux,
         github_owner,github_repo,github_ref,github_subdir,github_url,install_src,is_official,
-        publisher_user_id,authors,components,download_count,stars_cached,stars_fetched_at,created_at,updated_at)
-      VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,?16,?17,?18,?19,?20,?21,?22,?23)
+        publisher_user_id,authors,components,metadata,download_count,stars_cached,stars_fetched_at,created_at,updated_at)
+      VALUES (?1,?2,?3,?4,?5,?6,?7,?8,?9,?10,?11,?12,?13,?14,?15,?16,?17,?18,?19,?20,?21,?22,?23,?24)
       ON CONFLICT (github_owner,github_repo,github_subdir) DO UPDATE SET
         name=excluded.name, namespace=excluded.namespace, description=excluded.description,
         version=excluded.version, license=excluded.license, protocol=excluded.protocol,
         min_nevoflux=excluded.min_nevoflux, github_ref=excluded.github_ref,
         github_url=excluded.github_url, install_src=excluded.install_src,
         is_official=excluded.is_official, authors=excluded.authors, components=excluded.components,
-        stars_cached=excluded.stars_cached, stars_fetched_at=excluded.stars_fetched_at,
-        updated_at=excluded.updated_at`
+        metadata=excluded.metadata, stars_cached=excluded.stars_cached,
+        stars_fetched_at=excluded.stars_fetched_at, updated_at=excluded.updated_at`
     )
     .bind(
       p.id,
@@ -96,6 +111,7 @@ export async function upsertPack(db: D1Database, p: PackRow): Promise<void> {
       p.publisher_user_id,
       p.authors,
       p.components,
+      p.metadata,
       p.download_count,
       p.stars_cached,
       p.stars_fetched_at,
@@ -171,9 +187,10 @@ export async function isAdmin(db: D1Database, email: string | null | undefined):
 }
 
 /** A pack row with its JSON columns decoded, ready for rendering. */
-export interface PackView extends Omit<PackRow, 'authors' | 'components'> {
+export interface PackView extends Omit<PackRow, 'authors' | 'components' | 'metadata'> {
   authors: string[];
   components: PackComponents;
+  metadata: PackMetadata;
 }
 
 export function parsePackRow(row: PackRow): PackView {
@@ -181,7 +198,8 @@ export function parsePackRow(row: PackRow): PackView {
   const components = row.components
     ? (JSON.parse(row.components) as PackComponents)
     : { skills: [], seed: [], dashboard: false, canvasTools: [] };
-  return { ...row, authors, components };
+  const metadata = row.metadata ? (JSON.parse(row.metadata) as PackMetadata) : {};
+  return { ...row, authors, components, metadata };
 }
 
 export async function getPublisher(

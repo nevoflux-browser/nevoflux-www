@@ -85,6 +85,17 @@ export async function fetchPackPreview(
     }
   }
 
+  // 4. Default README — prefer the subdir's, fall back to the repo root. Best-effort.
+  let readme = '';
+  const readmePaths = source.subdir ? [`${source.subdir}/README.md`, 'README.md'] : ['README.md'];
+  for (const path of readmePaths) {
+    const r = await fetchImpl(`${GH_RAW}/${owner}/${repo}/${ref}/${path}`);
+    if (r.ok) {
+      readme = await r.text();
+      break;
+    }
+  }
+
   const installSrc = source.subdir
     ? deriveInstallSrc({ ...source, ref })
     : deriveInstallSrc(source);
@@ -98,5 +109,6 @@ export async function fetchPackPreview(
     isOfficial: isOfficial(owner),
     stars: typeof meta.stargazers_count === 'number' ? meta.stargazers_count : 0,
     repoLicense: typeof license.spdx_id === 'string' ? license.spdx_id : undefined,
+    readme,
   };
 }

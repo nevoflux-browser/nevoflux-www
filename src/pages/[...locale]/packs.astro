@@ -108,7 +108,7 @@ const href = (id: string) => getPath(locale, `/packs/${id}`);
                   class="border-dark/10 bg-surface/30 hover:border-accent/30 block rounded-2xl border p-5 transition-colors"
                 >
                   <div class="flex items-center gap-2">
-                    <h3 class="font-bold text-dark">{p.name}</h3>
+                    <h3 class="font-bold text-dark">{p.metadata.displayName || p.name}</h3>
                     {p.is_official === 1 && (
                       <span class="bg-accent/10 rounded-full px-2 py-0.5 text-xs font-medium text-accent">
                         {ui.registry.official}
@@ -125,7 +125,7 @@ const href = (id: string) => getPath(locale, `/packs/${id}`);
             <div id="list" class="divide-dark/5 border-dark/10 hidden divide-y rounded-2xl border">
               {packs.map((p) => (
                 <a href={href(p.id)} class="hover:bg-surface/40 flex items-center gap-3 p-4">
-                  <span class="font-medium text-dark">{p.name}</span>
+                  <span class="font-medium text-dark">{p.metadata.displayName || p.name}</span>
                   {p.is_official === 1 && (
                     <span class="bg-accent/10 rounded-full px-2 py-0.5 text-xs font-medium text-accent">
                       {ui.registry.official}

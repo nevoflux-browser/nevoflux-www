@@ -32,4 +32,24 @@ export interface PackPreview {
   isOfficial: boolean;
   stars: number;
   repoLicense?: string;
+  readme?: string; // default README.md fetched from the repo (markdown)
+}
+
+/** Editable, publisher-controlled metadata stored as JSON in pack.metadata. */
+export interface PackMetadata {
+  displayName?: string;
+  slug?: string;
+  releaseTags?: string[];
+  categories?: string[];
+  topics?: string[];
+  readme?: string; // markdown
+  skillsText?: string; // markdown
+  seedText?: string; // markdown
+  dashboardText?: string; // markdown
+}
+
+/** The payload the publish form sends to /api/packs/confirm. */
+export interface PackEdits extends PackMetadata {
+  summary?: string; // -> pack.description
+  version?: string; // -> pack.version
 }
