@@ -155,14 +155,19 @@ export async function deletePackById(db: D1Database, id: string): Promise<boolea
   return (res.meta?.changes ?? 0) > 0;
 }
 
-/** Is the given email on the admin allowlist? Case-insensitive. */
+/** Is the given email on the admin allowlist? Case-insensitive. Fail-closed on errors. */
 export async function isAdmin(db: D1Database, email: string | null | undefined): Promise<boolean> {
   if (!email) return false;
-  const row = await db
-    .prepare('SELECT 1 AS ok FROM admin WHERE lower(email) = lower(?1) LIMIT 1')
-    .bind(email)
-    .first<{ ok: number }>();
-  return Boolean(row);
+  try {
+    const row = await db
+      .prepare('SELECT 1 AS ok FROM admin WHERE lower(email) = lower(?1) LIMIT 1')
+      .bind(email)
+      .first<{ ok: number }>();
+    return Boolean(row);
+  } catch {
+    // admin table not migrated yet, or a transient DB error -> deny admin (safe default).
+    return false;
+  }
 }
 
 /** A pack row with its JSON columns decoded, ready for rendering. */
