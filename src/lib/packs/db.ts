@@ -123,6 +123,42 @@ export async function upsertPack(db: D1Database, p: PackRow): Promise<void> {
     .run();
 }
 
+/** Update only the editable fields (description, version, metadata) of an existing pack. */
+export async function updatePackMetadata(
+  db: D1Database,
+  id: string,
+  edits: PackEdits,
+  existing: PackRow
+): Promise<void> {
+  const existingMeta: PackMetadata = existing.metadata
+    ? (JSON.parse(existing.metadata) as PackMetadata)
+    : {};
+  const metadata: PackMetadata = {
+    ...existingMeta,
+    displayName: edits.displayName?.trim() || existing.name,
+    slug: edits.slug?.trim() || existingMeta.slug || existing.name,
+    releaseTags: edits.releaseTags ?? existingMeta.releaseTags ?? [],
+    categories: edits.categories ?? existingMeta.categories ?? [],
+    topics: edits.topics ?? existingMeta.topics ?? [],
+    readme: edits.readme ?? existingMeta.readme ?? '',
+    skillsText: edits.skillsText ?? existingMeta.skillsText ?? '',
+    seedText: edits.seedText ?? existingMeta.seedText ?? '',
+    dashboardText: edits.dashboardText ?? existingMeta.dashboardText ?? '',
+  };
+  await db
+    .prepare(
+      'UPDATE pack SET description = ?1, version = ?2, metadata = ?3, updated_at = ?4 WHERE id = ?5'
+    )
+    .bind(
+      edits.summary?.trim() || existing.description,
+      edits.version?.trim() || existing.version,
+      JSON.stringify(metadata),
+      Date.now(),
+      id
+    )
+    .run();
+}
+
 export async function getPackById(db: D1Database, id: string): Promise<PackRow | null> {
   return await db.prepare('SELECT * FROM pack WHERE id = ?1').bind(id).first<PackRow>();
 }

@@ -228,7 +228,14 @@
     "notFound": "Pack not found.",
     "none": "None",
     "delete": "Delete pack",
-    "deleteConfirm": "Delete this pack from the registry? This cannot be undone."
+    "deleteConfirm": "Delete this pack from the registry? This cannot be undone.",
+    "edit": "Edit pack"
+  },
+  "edit": {
+    "title": "Edit pack",
+    "save": "Save changes",
+    "saved": "Saved! Redirecting…",
+    "notAllowed": "You don't have permission to edit this pack."
   },
   "cta": {
     "title": "Ready to Command Your Browser?",

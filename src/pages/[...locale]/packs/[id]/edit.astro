@@ -1,0 +1,228 @@
+---
+export const prerender = false;
+
+import Layout from '~/layouts/Layout.astro';
+import NavBar from '~/components/NavBar.astro';
+import Footer from '~/components/Footer.astro';
+import { getLocale, getUI, getPath } from '~/utils/i18n';
+import { getRuntimeEnv } from '~/lib/runtime';
+import { getSessionUser } from '~/lib/session';
+import { getPackById, parsePackRow, isAdmin } from '~/lib/packs/db';
+
+const locale = getLocale(Astro.url);
+const ui = getUI(locale);
+const id = Astro.params.id ?? '';
+const env = getRuntimeEnv(Astro.locals);
+
+const row = await getPackById(env.DB, id);
+const pack = row ? parsePackRow(row) : null;
+const user = await getSessionUser(Astro.locals, Astro.request);
+const canEdit = !!(
+  pack &&
+  user &&
+  (user.id === pack.publisher_user_id || (await isAdmin(env.DB, user.email)))
+);
+if (!canEdit) Astro.response.status = pack ? 403 : 404;
+
+const m = pack?.metadata ?? {};
+const v = {
+  displayName: pack ? m.displayName || pack.name : '',
+  slug: m.slug ?? '',
+  summary: pack?.description ?? '',
+  version: pack?.version ?? '',
+  releaseTags: (m.releaseTags ?? []).join(', '),
+  categories: (m.categories ?? []).join(', '),
+  topics: (m.topics ?? []).join(', '),
+  readme: m.readme ?? '',
+  skills: m.skillsText ?? '',
+  seed: m.seedText ?? '',
+  dashboard: m.dashboardText ?? '',
+};
+
+const inputClass =
+  'border-dark/15 focus:border-accent w-full rounded-lg border px-3 py-2 text-sm outline-none';
+const labelClass = 'block text-sm font-medium text-dark';
+---
+
+<Layout title={`${ui.edit.title} · ${ui.site.title}`} description={ui.edit.title}>
+  <NavBar />
+  <main class="container min-h-screen py-32">
+    <div class="mx-auto max-w-2xl">
+      <h1 class="text-3xl font-bold tracking-tight text-dark">{ui.edit.title}</h1>
+
+      {
+        !canEdit ? (
+          <p class="mt-6 text-muted">{ui.edit.notAllowed}</p>
+        ) : (
+          <Fragment>
+            <p class="mt-1 text-sm text-muted">{pack.github_url}</p>
+            <p id="msg" class="mt-4 text-sm text-subtle" />
+
+            <div class="mt-6 space-y-4">
+              <div>
+                <label for="f-displayName" class={labelClass}>
+                  {ui.publish.displayName}
+                </label>
+                <input
+                  id="f-displayName"
+                  type="text"
+                  value={v.displayName}
+                  class={`mt-1 ${inputClass}`}
+                />
+              </div>
+              <div>
+                <label for="f-slug" class={labelClass}>
+                  {ui.publish.slug}
+                </label>
+                <input id="f-slug" type="text" value={v.slug} class={`mt-1 ${inputClass}`} />
+              </div>
+              <div>
+                <label for="f-summary" class={labelClass}>
+                  {ui.publish.summary}
+                </label>
+                <input id="f-summary" type="text" value={v.summary} class={`mt-1 ${inputClass}`} />
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label for="f-version" class={labelClass}>
+                    {ui.publish.version}
+                  </label>
+                  <input
+                    id="f-version"
+                    type="text"
+                    value={v.version}
+                    class={`mt-1 ${inputClass}`}
+                  />
+                </div>
+                <div>
+                  <label for="f-releaseTags" class={labelClass}>
+                    {ui.publish.releaseTags}
+                  </label>
+                  <input
+                    id="f-releaseTags"
+                    type="text"
+                    value={v.releaseTags}
+                    class={`mt-1 ${inputClass}`}
+                  />
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-4">
+                <div>
+                  <label for="f-categories" class={labelClass}>
+                    {ui.publish.categories}
+                  </label>
+                  <input
+                    id="f-categories"
+                    type="text"
+                    value={v.categories}
+                    class={`mt-1 ${inputClass}`}
+                  />
+                </div>
+                <div>
+                  <label for="f-topics" class={labelClass}>
+                    {ui.publish.topics}
+                  </label>
+                  <input id="f-topics" type="text" value={v.topics} class={`mt-1 ${inputClass}`} />
+                </div>
+              </div>
+              <div>
+                <label for="f-readme" class={labelClass}>
+                  {ui.publish.readme}
+                </label>
+                <textarea id="f-readme" rows="8" class={`mt-1 font-mono ${inputClass}`} />
+              </div>
+              <div>
+                <label for="f-skills" class={labelClass}>
+                  {ui.publish.skills}
+                </label>
+                <textarea id="f-skills" rows="4" class={`mt-1 font-mono ${inputClass}`} />
+              </div>
+              <div>
+                <label for="f-seed" class={labelClass}>
+                  {ui.publish.seed}
+                </label>
+                <textarea id="f-seed" rows="4" class={`mt-1 font-mono ${inputClass}`} />
+              </div>
+              <div>
+                <label for="f-dashboard" class={labelClass}>
+                  {ui.publish.dashboard}
+                </label>
+                <textarea id="f-dashboard" rows="3" class={`mt-1 font-mono ${inputClass}`} />
+              </div>
+            </div>
+
+            <button
+              id="save-btn"
+              class="mt-6 rounded-lg bg-accent px-5 py-2.5 text-sm font-medium text-white transition-colors hover:bg-accent-hover"
+            >
+              {ui.edit.save}
+            </button>
+          </Fragment>
+        )
+      }
+    </div>
+  </main>
+  <Footer />
+</Layout>
+
+<script
+  define:vars={{
+    packId: id,
+    detailUrl: getPath(locale, `/packs/${id}`),
+    loginUrl: getPath(locale, '/login'),
+    md: { readme: v.readme, skills: v.skills, seed: v.seed, dashboard: v.dashboard },
+    t: { saved: ui.edit.saved, loginRequired: ui.publish.loginRequired },
+  }}
+>
+  const saveBtn = document.getElementById('save-btn');
+  const msg = document.getElementById('msg');
+  const getVal = (id) => document.getElementById(id)?.value ?? '';
+  const setVal = (id, val) => {
+    const el = document.getElementById(id);
+    if (el) el.value = val ?? '';
+  };
+  const splitCsv = (s) =>
+    s
+      .split(',')
+      .map((x) => x.trim())
+      .filter(Boolean);
+
+  // Prefill the Markdown fields (kept out of HTML to avoid whitespace issues).
+  setVal('f-readme', md.readme);
+  setVal('f-skills', md.skills);
+  setVal('f-seed', md.seed);
+  setVal('f-dashboard', md.dashboard);
+
+  saveBtn?.addEventListener('click', async () => {
+    if (msg) msg.textContent = '…';
+    const edits = {
+      displayName: getVal('f-displayName'),
+      slug: getVal('f-slug'),
+      summary: getVal('f-summary'),
+      version: getVal('f-version'),
+      releaseTags: splitCsv(getVal('f-releaseTags')),
+      categories: splitCsv(getVal('f-categories')),
+      topics: splitCsv(getVal('f-topics')),
+      readme: getVal('f-readme'),
+      skillsText: getVal('f-skills'),
+      seedText: getVal('f-seed'),
+      dashboardText: getVal('f-dashboard'),
+    };
+    const res = await fetch(`/api/packs/${packId}/update`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ edits }),
+    });
+    if (res.status === 401) {
+      window.location.href = loginUrl;
+      return;
+    }
+    const data = await res.json();
+    if (!res.ok) {
+      if (msg) msg.textContent = data.error || 'Error';
+      return;
+    }
+    if (msg) msg.textContent = t.saved;
+    window.location.href = detailUrl;
+  });
+</script>

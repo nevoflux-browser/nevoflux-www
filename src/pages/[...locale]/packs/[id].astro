@@ -131,15 +131,23 @@ const tabs = pack
               {ui.detail.source} ↗
             </a>
             {canDelete && (
-              <button
-                id="delete-btn"
-                data-pack-id={pack.id}
-                data-confirm={ui.detail.deleteConfirm}
-                data-packs-url={getPath(locale, '/packs')}
-                class="ml-auto text-sm font-medium text-red-600 transition-colors hover:text-red-700"
-              >
-                {ui.detail.delete}
-              </button>
+              <Fragment>
+                <a
+                  href={getPath(locale, `/packs/${pack.id}/edit`)}
+                  class="ml-auto text-sm font-medium text-subtle transition-colors hover:text-accent"
+                >
+                  {ui.detail.edit}
+                </a>
+                <button
+                  id="delete-btn"
+                  data-pack-id={pack.id}
+                  data-confirm={ui.detail.deleteConfirm}
+                  data-packs-url={getPath(locale, '/packs')}
+                  class="text-sm font-medium text-red-600 transition-colors hover:text-red-700"
+                >
+                  {ui.detail.delete}
+                </button>
+              </Fragment>
             )}
           </div>
 
