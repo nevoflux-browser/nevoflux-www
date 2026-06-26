@@ -244,8 +244,9 @@ const rawImgBase = pack
   import { marked } from 'marked';
   import DOMPurify from 'dompurify';
 
-  // Resolve README image URLs: relative paths and github.com blob/raw links -> raw CDN.
   const imgBase = document.querySelector<HTMLElement>('[data-img-base]')?.dataset.imgBase || '';
+
+  // Relative paths and github.com blob/raw image links -> raw CDN.
   const resolveImg = (src: string) => {
     if (!src) return src;
     const blob = src.match(/^https?:\/\/github\.com\/([^/]+)\/([^/]+)\/(?:blob|raw)\/(.+)$/);
@@ -254,14 +255,49 @@ const rawImgBase = pack
     return imgBase ? imgBase + src.replace(/^\.?\//, '') : src; // relative -> raw base
   };
 
+  // Resolve an in-repo link to a .md file to its raw URL (for in-place loading).
+  const resolveMdLink = (href: string): string => {
+    if (!href || href.startsWith('#')) return '';
+    const clean = href.replace(/[?#].*$/, '');
+    const blob = clean.match(/^https?:\/\/github\.com\/([^/]+)\/([^/]+)\/(?:blob|raw)\/(.+\.md)$/i);
+    if (blob) return `https://raw.githubusercontent.com/${blob[1]}/${blob[2]}/${blob[3]}`;
+    if (/^https?:\/\/raw\.githubusercontent\.com\/.+\.md$/i.test(clean)) return clean;
+    if (!/^(?:https?:|data:|\/\/|mailto:)/i.test(clean) && /\.md$/i.test(clean)) {
+      return imgBase ? imgBase + clean.replace(/^\.?\//, '') : '';
+    }
+    return '';
+  };
+
   // Render publisher-supplied markdown safely (sanitized — content is untrusted).
-  document.querySelectorAll<HTMLElement>('[data-md]').forEach((el) => {
-    const md = el.dataset.md ?? '';
+  function renderMd(el: HTMLElement, md: string) {
     el.innerHTML = DOMPurify.sanitize(marked.parse(md, { async: false }) as string);
     el.querySelectorAll('img').forEach((img) => {
       const fixed = resolveImg(img.getAttribute('src') || '');
       if (fixed) img.setAttribute('src', fixed);
     });
+    el.querySelectorAll('a').forEach((a) => {
+      const mdUrl = resolveMdLink(a.getAttribute('href') || '');
+      if (mdUrl) a.dataset.mdUrl = mdUrl;
+    });
+  }
+
+  document
+    .querySelectorAll<HTMLElement>('[data-md]')
+    .forEach((el) => renderMd(el, el.dataset.md ?? ''));
+
+  // Clicking an in-repo .md link (e.g. a README language switcher) loads it in place.
+  document.querySelector('article')?.addEventListener('click', async (e) => {
+    const a = (e.target as HTMLElement).closest?.('a[data-md-url]') as HTMLAnchorElement | null;
+    const panel = a?.closest('[data-md]') as HTMLElement | null;
+    if (!a || !panel) return;
+    e.preventDefault();
+    try {
+      const res = await fetch(a.dataset.mdUrl as string);
+      if (!res.ok) throw new Error(String(res.status));
+      renderMd(panel, await res.text());
+    } catch {
+      window.open(a.dataset.mdUrl, '_blank', 'noopener');
+    }
   });
 
   // Tabs: show one of Readme / Skills / Seed / Dashboard at a time.
