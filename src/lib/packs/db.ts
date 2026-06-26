@@ -21,7 +21,8 @@ export interface PackRow {
   components: string | null; // JSON-encoded PackComponents
   metadata: string | null; // JSON-encoded PackMetadata (publisher-editable)
   download_count: number;
-  stars_cached: number | null;
+  star_count: number; // user stars (denormalized count of pack_star rows)
+  stars_cached: number | null; // deprecated (was GitHub stars); no longer displayed
   stars_fetched_at: number | null;
   created_at: number;
   updated_at: number;
@@ -68,6 +69,7 @@ export function packRowFromPreview(
     components: JSON.stringify(preview.components),
     metadata: JSON.stringify(metadata),
     download_count: 0,
+    star_count: 0,
     stars_cached: preview.stars,
     stars_fetched_at: now,
     created_at: now,
@@ -150,6 +152,47 @@ export async function incrementDownload(db: D1Database, id: string): Promise<voi
     .prepare('UPDATE pack SET download_count = download_count + 1 WHERE id = ?1')
     .bind(id)
     .run();
+}
+
+/** Has this user starred this pack? Fail-closed if the table is not migrated yet. */
+export async function hasStarred(db: D1Database, packId: string, userId: string): Promise<boolean> {
+  try {
+    const row = await db
+      .prepare('SELECT 1 AS ok FROM pack_star WHERE pack_id = ?1 AND user_id = ?2 LIMIT 1')
+      .bind(packId, userId)
+      .first<{ ok: number }>();
+    return Boolean(row);
+  } catch {
+    return false;
+  }
+}
+
+/** Toggle a user's star on a pack; returns the new state and the pack's star count. */
+export async function toggleStar(
+  db: D1Database,
+  packId: string,
+  userId: string
+): Promise<{ starred: boolean; starCount: number }> {
+  const existing = await db
+    .prepare('SELECT 1 AS ok FROM pack_star WHERE pack_id = ?1 AND user_id = ?2 LIMIT 1')
+    .bind(packId, userId)
+    .first<{ ok: number }>();
+  if (existing) {
+    await db.batch([
+      db.prepare('DELETE FROM pack_star WHERE pack_id = ?1 AND user_id = ?2').bind(packId, userId),
+      db.prepare('UPDATE pack SET star_count = MAX(0, star_count - 1) WHERE id = ?1').bind(packId),
+    ]);
+  } else {
+    await db.batch([
+      db.prepare('INSERT INTO pack_star (pack_id, user_id) VALUES (?1, ?2)').bind(packId, userId),
+      db.prepare('UPDATE pack SET star_count = star_count + 1 WHERE id = ?1').bind(packId),
+    ]);
+  }
+  const row = await db
+    .prepare('SELECT star_count FROM pack WHERE id = ?1')
+    .bind(packId)
+    .first<{ star_count: number }>();
+  return { starred: !existing, starCount: row?.star_count ?? 0 };
 }
 
 /** Delete a pack, but only if it belongs to the given publisher. Returns true if removed. */

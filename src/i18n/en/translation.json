@@ -222,7 +222,7 @@
     "version": "Version",
     "license": "License",
     "stars": "Stars",
-    "downloads": "Downloads",
+    "downloads": "Installs",
     "official": "Official",
     "source": "Source",
     "notFound": "Pack not found.",

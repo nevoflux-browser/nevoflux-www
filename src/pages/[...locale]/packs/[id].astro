@@ -7,7 +7,7 @@ import Footer from '~/components/Footer.astro';
 import { getLocale, getUI, getPath } from '~/utils/i18n';
 import { getRuntimeEnv } from '~/lib/runtime';
 import { getSessionUser } from '~/lib/session';
-import { getPackById, parsePackRow, getPublisher, isAdmin } from '~/lib/packs/db';
+import { getPackById, parsePackRow, getPublisher, isAdmin, hasStarred } from '~/lib/packs/db';
 
 const locale = getLocale(Astro.url);
 const ui = getUI(locale);
@@ -31,7 +31,6 @@ const meta = pack
   ? [
       { label: ui.detail.version, value: pack.version },
       { label: ui.detail.license, value: pack.license || ui.detail.none },
-      { label: ui.detail.stars, value: String(pack.stars_cached ?? 0) },
       { label: ui.detail.downloads, value: String(pack.download_count) },
       { label: ui.detail.publisher, value: publisherName },
     ]
@@ -42,6 +41,9 @@ const categories = pack?.metadata.categories ?? [];
 const topics = pack?.metadata.topics ?? [];
 const releaseTags = pack?.metadata.releaseTags ?? [];
 const hasChips = categories.length + topics.length + releaseTags.length > 0;
+
+const starCount = pack ? (pack.star_count ?? 0) : 0;
+const starred = pack && currentUser ? await hasStarred(env.DB, id, currentUser.id) : false;
 ---
 
 <Layout
@@ -93,6 +95,23 @@ const hasChips = categories.length + topics.length + releaseTags.length > 0;
             >
               {ui.detail.install}
             </a>
+            <button
+              id="star-btn"
+              data-pack-id={pack.id}
+              data-starred={starred ? '1' : '0'}
+              data-logged-in={currentUser ? '1' : '0'}
+              data-login-url={getPath(locale, '/login')}
+              aria-label={ui.detail.stars}
+              class:list={[
+                'inline-flex items-center gap-1.5 rounded-lg border px-4 py-3 text-sm font-medium transition-colors',
+                starred
+                  ? 'border-accent/40 text-accent'
+                  : 'border-dark/15 text-subtle hover:text-accent',
+              ]}
+            >
+              <span id="star-icon">{starred ? '★' : '☆'}</span>
+              <span id="star-count">{starCount}</span>
+            </button>
             <a
               href={pack.github_url}
               target="_blank"
@@ -187,6 +206,26 @@ const hasChips = categories.length + topics.length + releaseTags.length > 0;
   btn?.addEventListener('click', () => {
     const id = btn.dataset.packId;
     if (id) navigator.sendBeacon(`/api/packs/${id}/install`);
+  });
+
+  const star = document.getElementById('star-btn');
+  star?.addEventListener('click', async () => {
+    if (star.dataset.loggedIn !== '1') {
+      window.location.href = star.dataset.loginUrl || '/login';
+      return;
+    }
+    const res = await fetch(`/api/packs/${star.dataset.packId}/star`, { method: 'POST' });
+    if (!res.ok) return;
+    const data = (await res.json()) as { starred: boolean; starCount: number };
+    star.dataset.starred = data.starred ? '1' : '0';
+    const icon = document.getElementById('star-icon');
+    const count = document.getElementById('star-count');
+    if (icon) icon.textContent = data.starred ? '★' : '☆';
+    if (count) count.textContent = String(data.starCount);
+    star.classList.toggle('text-accent', data.starred);
+    star.classList.toggle('border-accent/40', data.starred);
+    star.classList.toggle('text-subtle', !data.starred);
+    star.classList.toggle('border-dark/15', !data.starred);
   });
 
   const del = document.getElementById('delete-btn');
