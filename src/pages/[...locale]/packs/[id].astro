@@ -54,6 +54,12 @@ const tabs = pack
       { key: 'dashboard', label: ui.detail.dashboard, value: pack.metadata.dashboardText },
     ]
   : [];
+
+// Base for resolving relative README image paths to raw.githubusercontent.com.
+const rawRef = pack ? pack.github_ref || 'main' : 'main';
+const rawImgBase = pack
+  ? `https://raw.githubusercontent.com/${pack.github_owner}/${pack.github_repo}/${rawRef}/${pack.github_subdir ? pack.github_subdir + '/' : ''}`
+  : '';
 ---
 
 <Layout
@@ -66,7 +72,7 @@ const tabs = pack
       !pack ? (
         <p class="mt-16 text-center text-muted">{ui.detail.notFound}</p>
       ) : (
-        <article class="mx-auto max-w-3xl">
+        <article class="mx-auto max-w-3xl" data-img-base={rawImgBase}>
           <header class="flex flex-wrap items-center gap-3">
             <h1 class="text-3xl font-bold tracking-tight text-dark md:text-4xl">{displayName}</h1>
             {pack.is_official === 1 && (
@@ -134,18 +140,46 @@ const tabs = pack
               <Fragment>
                 <a
                   href={getPath(locale, `/packs/${pack.id}/edit`)}
-                  class="ml-auto text-sm font-medium text-subtle transition-colors hover:text-accent"
+                  aria-label={ui.detail.edit}
+                  title={ui.detail.edit}
+                  class="border-dark/15 hover:border-accent/40 ml-auto inline-flex items-center justify-center rounded-lg border p-2 text-subtle transition-colors hover:text-accent"
                 >
-                  {ui.detail.edit}
+                  <svg
+                    class="h-4 w-4"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <path d="M12 20h9" />
+                    <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4 12.5-12.5z" />
+                  </svg>
                 </a>
                 <button
                   id="delete-btn"
                   data-pack-id={pack.id}
                   data-confirm={ui.detail.deleteConfirm}
                   data-packs-url={getPath(locale, '/packs')}
-                  class="text-sm font-medium text-red-600 transition-colors hover:text-red-700"
+                  aria-label={ui.detail.delete}
+                  title={ui.detail.delete}
+                  class="border-dark/15 inline-flex items-center justify-center rounded-lg border p-2 text-red-600 transition-colors hover:border-red-300 hover:text-red-700"
                 >
-                  {ui.detail.delete}
+                  <svg
+                    class="h-4 w-4"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                  >
+                    <polyline points="3 6 5 6 21 6" />
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                    <line x1="10" y1="11" x2="10" y2="17" />
+                    <line x1="14" y1="11" x2="14" y2="17" />
+                  </svg>
                 </button>
               </Fragment>
             )}
@@ -210,10 +244,24 @@ const tabs = pack
   import { marked } from 'marked';
   import DOMPurify from 'dompurify';
 
+  // Resolve README image URLs: relative paths and github.com blob/raw links -> raw CDN.
+  const imgBase = document.querySelector<HTMLElement>('[data-img-base]')?.dataset.imgBase || '';
+  const resolveImg = (src: string) => {
+    if (!src) return src;
+    const blob = src.match(/^https?:\/\/github\.com\/([^/]+)\/([^/]+)\/(?:blob|raw)\/(.+)$/);
+    if (blob) return `https://raw.githubusercontent.com/${blob[1]}/${blob[2]}/${blob[3]}`;
+    if (/^(?:https?:|data:|\/\/)/i.test(src)) return src; // other absolute URLs: leave as-is
+    return imgBase ? imgBase + src.replace(/^\.?\//, '') : src; // relative -> raw base
+  };
+
   // Render publisher-supplied markdown safely (sanitized — content is untrusted).
   document.querySelectorAll<HTMLElement>('[data-md]').forEach((el) => {
     const md = el.dataset.md ?? '';
     el.innerHTML = DOMPurify.sanitize(marked.parse(md, { async: false }) as string);
+    el.querySelectorAll('img').forEach((img) => {
+      const fixed = resolveImg(img.getAttribute('src') || '');
+      if (fixed) img.setAttribute('src', fixed);
+    });
   });
 
   // Tabs: show one of Readme / Skills / Seed / Dashboard at a time.
