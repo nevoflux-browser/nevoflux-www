@@ -44,6 +44,15 @@ const hasChips = categories.length + topics.length + releaseTags.length > 0;
 
 const starCount = pack ? (pack.star_count ?? 0) : 0;
 const starred = pack && currentUser ? await hasStarred(env.DB, id, currentUser.id) : false;
+
+const tabs = pack
+  ? [
+      { key: 'readme', label: ui.detail.readme, value: pack.metadata.readme },
+      { key: 'skills', label: ui.detail.skills, value: pack.metadata.skillsText },
+      { key: 'seed', label: ui.detail.seed, value: pack.metadata.seedText },
+      { key: 'dashboard', label: ui.detail.dashboard, value: pack.metadata.dashboardText },
+    ]
+  : [];
 ---
 
 <Layout
@@ -142,49 +151,35 @@ const starred = pack && currentUser ? await hasStarred(env.DB, id, currentUser.i
             ))}
           </dl>
 
-          <section class="mt-8">
-            <h2 class="text-sm font-semibold uppercase tracking-wide text-subtle">
-              {ui.detail.readme}
-            </h2>
-            {pack.metadata.readme ? (
-              <div class="prose mt-2 max-w-none" data-md={pack.metadata.readme} />
-            ) : (
-              <p class="mt-2 text-sm text-muted">{ui.detail.none}</p>
-            )}
-          </section>
-
-          <section class="mt-8">
-            <h2 class="text-sm font-semibold uppercase tracking-wide text-subtle">
-              {ui.detail.skills}
-            </h2>
-            {pack.metadata.skillsText ? (
-              <div class="prose mt-2 max-w-none" data-md={pack.metadata.skillsText} />
-            ) : (
-              <p class="mt-2 text-sm text-muted">{ui.detail.none}</p>
-            )}
-          </section>
-
-          <section class="mt-8">
-            <h2 class="text-sm font-semibold uppercase tracking-wide text-subtle">
-              {ui.detail.seed}
-            </h2>
-            {pack.metadata.seedText ? (
-              <div class="prose mt-2 max-w-none" data-md={pack.metadata.seedText} />
-            ) : (
-              <p class="mt-2 text-sm text-muted">{ui.detail.none}</p>
-            )}
-          </section>
-
-          <section class="mt-8">
-            <h2 class="text-sm font-semibold uppercase tracking-wide text-subtle">
-              {ui.detail.dashboard}
-            </h2>
-            {pack.metadata.dashboardText ? (
-              <div class="prose mt-2 max-w-none" data-md={pack.metadata.dashboardText} />
-            ) : (
-              <p class="mt-2 text-sm text-muted">{ui.detail.none}</p>
-            )}
-          </section>
+          <div class="mt-8">
+            <div role="tablist" class="border-dark/10 flex flex-wrap gap-1 border-b">
+              {tabs.map((tab, i) => (
+                <button
+                  type="button"
+                  role="tab"
+                  data-tab={tab.key}
+                  aria-selected={i === 0 ? 'true' : 'false'}
+                  class:list={[
+                    'pack-tab -mb-px border-b-2 px-4 py-2 text-sm font-medium transition-colors',
+                    i === 0
+                      ? 'border-accent text-accent'
+                      : 'border-transparent text-subtle hover:text-accent',
+                  ]}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+            {tabs.map((tab, i) => (
+              <div class:list={['pack-panel mt-4', { hidden: i !== 0 }]} data-panel={tab.key}>
+                {tab.value ? (
+                  <div class="prose max-w-none" data-md={tab.value} />
+                ) : (
+                  <p class="text-sm text-muted">{ui.detail.none}</p>
+                )}
+              </div>
+            ))}
+          </div>
         </article>
       )
     }
@@ -201,6 +196,24 @@ const starred = pack && currentUser ? await hasStarred(env.DB, id, currentUser.i
     const md = el.dataset.md ?? '';
     el.innerHTML = DOMPurify.sanitize(marked.parse(md, { async: false }) as string);
   });
+
+  // Tabs: show one of Readme / Skills / Seed / Dashboard at a time.
+  const tabBtns = document.querySelectorAll<HTMLElement>('.pack-tab');
+  const panels = document.querySelectorAll<HTMLElement>('.pack-panel');
+  tabBtns.forEach((b) =>
+    b.addEventListener('click', () => {
+      const key = b.dataset.tab;
+      tabBtns.forEach((t) => {
+        const active = t.dataset.tab === key;
+        t.setAttribute('aria-selected', active ? 'true' : 'false');
+        t.classList.toggle('border-accent', active);
+        t.classList.toggle('text-accent', active);
+        t.classList.toggle('border-transparent', !active);
+        t.classList.toggle('text-subtle', !active);
+      });
+      panels.forEach((p) => p.classList.toggle('hidden', p.dataset.panel !== key));
+    })
+  );
 
   const btn = document.getElementById('install-btn');
   btn?.addEventListener('click', () => {
