@@ -248,9 +248,9 @@ export function parsePackRow(row: PackRow): PackView {
 export async function getPublisher(
   db: D1Database,
   userId: string
-): Promise<{ name: string | null; email: string | null } | null> {
+): Promise<{ name: string | null; email: string | null; image: string | null } | null> {
   return await db
-    .prepare('SELECT name, email FROM user WHERE id = ?1')
+    .prepare('SELECT name, email, image FROM user WHERE id = ?1')
     .bind(userId)
-    .first<{ name: string | null; email: string | null }>();
+    .first<{ name: string | null; email: string | null; image: string | null }>();
 }
