@@ -206,7 +206,11 @@
     "empty": "No packs yet. Be the first to publish one.",
     "official": "Official",
     "downloads": "downloads",
-    "stars": "stars"
+    "stars": "stars",
+    "sortLabel": "Sort",
+    "sortPopular": "Popular",
+    "sortNewest": "Newest",
+    "sortStars": "Most stars"
   },
   "detail": {
     "install": "Install in NevoFlux",

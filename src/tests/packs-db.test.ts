@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { packRowFromPreview, parsePackRow } from '~/lib/packs/db';
+import { packRowFromPreview, parsePackRow, parsePackSort, packOrderClause } from '~/lib/packs/db';
 import type { PackPreview } from '~/lib/packs/types';
 
 const preview: PackPreview = {
@@ -43,6 +43,43 @@ describe('packRowFromPreview', () => {
     );
     expect(root.github_subdir).toBe('');
     expect(root.is_official).toBe(0);
+  });
+});
+
+describe('parsePackSort', () => {
+  it('accepts the known sort modes', () => {
+    expect(parsePackSort('popular')).toBe('popular');
+    expect(parsePackSort('newest')).toBe('newest');
+    expect(parsePackSort('stars')).toBe('stars');
+  });
+
+  it('falls back to popular for missing or unknown values', () => {
+    expect(parsePackSort(undefined)).toBe('popular');
+    expect(parsePackSort(null)).toBe('popular');
+    expect(parsePackSort('')).toBe('popular');
+    expect(parsePackSort('garbage')).toBe('popular');
+    expect(parsePackSort('POPULAR')).toBe('popular'); // exact match only
+  });
+});
+
+describe('packOrderClause', () => {
+  it('keeps the current official-first popularity order as the default', () => {
+    expect(packOrderClause('popular')).toBe(
+      'is_official DESC, download_count DESC, star_count DESC, created_at DESC, id'
+    );
+  });
+
+  it('sorts newest by creation time and stars by star count', () => {
+    expect(packOrderClause('newest')).toBe('created_at DESC, id');
+    expect(packOrderClause('stars')).toBe(
+      'star_count DESC, download_count DESC, created_at DESC, id'
+    );
+  });
+
+  it('ends every mode with a deterministic unique tiebreaker (id)', () => {
+    for (const sort of ['popular', 'newest', 'stars'] as const) {
+      expect(packOrderClause(sort).endsWith(', id')).toBe(true);
+    }
   });
 });
 

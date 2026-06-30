@@ -163,21 +163,53 @@ export async function getPackById(db: D1Database, id: string): Promise<PackRow |
   return await db.prepare('SELECT * FROM pack WHERE id = ?1').bind(id).first<PackRow>();
 }
 
-export async function searchPacks(db: D1Database, q: string, limit = 50): Promise<PackRow[]> {
+/** User-selectable sort modes for the pack listing. */
+export type PackSort = 'popular' | 'newest' | 'stars';
+
+/** Coerce an arbitrary query-string value to a known sort mode (default: popular). */
+export function parsePackSort(value: string | null | undefined): PackSort {
+  return value === 'newest' || value === 'stars' ? value : 'popular';
+}
+
+/**
+ * SQL ORDER BY clause body for a sort mode. Built from a fixed whitelist (never
+ * raw user input), so it is safe to interpolate. Every mode ends with `id`, a
+ * unique column, to guarantee a deterministic, stable order when the leading
+ * keys tie (e.g. the many packs at 0 downloads early on).
+ */
+export function packOrderClause(sort: PackSort): string {
+  switch (sort) {
+    case 'newest':
+      return 'created_at DESC, id';
+    case 'stars':
+      return 'star_count DESC, download_count DESC, created_at DESC, id';
+    case 'popular':
+    default:
+      return 'is_official DESC, download_count DESC, star_count DESC, created_at DESC, id';
+  }
+}
+
+export async function searchPacks(
+  db: D1Database,
+  q: string,
+  sort: PackSort = 'popular',
+  limit = 50
+): Promise<PackRow[]> {
+  const orderBy = packOrderClause(sort);
   const trimmed = q.trim();
   if (trimmed) {
     const like = `%${trimmed}%`;
     const res = await db
       .prepare(
         `SELECT * FROM pack WHERE name LIKE ?1 OR description LIKE ?1
-         ORDER BY is_official DESC, download_count DESC LIMIT ?2`
+         ORDER BY ${orderBy} LIMIT ?2`
       )
       .bind(like, limit)
       .all<PackRow>();
     return res.results ?? [];
   }
   const res = await db
-    .prepare('SELECT * FROM pack ORDER BY is_official DESC, download_count DESC LIMIT ?1')
+    .prepare(`SELECT * FROM pack ORDER BY ${orderBy} LIMIT ?1`)
     .bind(limit)
     .all<PackRow>();
   return res.results ?? [];

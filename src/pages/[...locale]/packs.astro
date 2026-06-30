@@ -6,13 +6,19 @@ import NavBar from '~/components/NavBar.astro';
 import Footer from '~/components/Footer.astro';
 import { getLocale, getUI, getPath } from '~/utils/i18n';
 import { getRuntimeEnv } from '~/lib/runtime';
-import { searchPacks, parsePackRow } from '~/lib/packs/db';
+import { searchPacks, parsePackRow, parsePackSort } from '~/lib/packs/db';
 
 const locale = getLocale(Astro.url);
 const ui = getUI(locale);
 const q = Astro.url.searchParams.get('q') ?? '';
-const packs = (await searchPacks(getRuntimeEnv(Astro.locals).DB, q)).map(parsePackRow);
+const sort = parsePackSort(Astro.url.searchParams.get('sort'));
+const packs = (await searchPacks(getRuntimeEnv(Astro.locals).DB, q, sort)).map(parsePackRow);
 const href = (id: string) => getPath(locale, `/packs/${id}`);
+const sortOptions = [
+  { value: 'popular', label: ui.registry.sortPopular },
+  { value: 'newest', label: ui.registry.sortNewest },
+  { value: 'stars', label: ui.registry.sortStars },
+] as const;
 ---
 
 <Layout title={`${ui.registry.title} · ${ui.site.title}`} description={ui.registry.subtitle}>
@@ -27,7 +33,7 @@ const href = (id: string) => getPath(locale, `/packs/${id}`);
       </header>
 
       <div class="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center">
-        <form method="get" class="flex flex-1 gap-2">
+        <form method="get" id="search-form" class="flex flex-1 gap-2">
           <input
             type="search"
             name="q"
@@ -42,6 +48,21 @@ const href = (id: string) => getPath(locale, `/packs/${id}`);
           >
         </form>
         <div class="flex items-center gap-2">
+          <label class="sr-only" for="sort-select">{ui.registry.sortLabel}</label>
+          <select
+            id="sort-select"
+            name="sort"
+            form="search-form"
+            class="border-dark/15 rounded-lg border px-3 py-2.5 text-sm outline-none focus:border-accent"
+          >
+            {
+              sortOptions.map((o) => (
+                <option value={o.value} selected={sort === o.value}>
+                  {o.label}
+                </option>
+              ))
+            }
+          </select>
           <div class="border-dark/10 inline-flex overflow-hidden rounded-lg border">
             <button
               id="view-card"
@@ -172,4 +193,8 @@ const href = (id: string) => getPath(locale, `/packs/${id}`);
     localStorage.setItem('packs-view', 'list');
     apply('list');
   });
+
+  // Re-run the search (preserving the query) as soon as the sort changes.
+  const sortSelect = document.getElementById('sort-select') as HTMLSelectElement | null;
+  sortSelect?.addEventListener('change', () => sortSelect.form?.requestSubmit());
 </script>
