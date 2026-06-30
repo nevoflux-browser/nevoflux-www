@@ -28,11 +28,11 @@ const isOwner = !!(pack && currentUser && currentUser.id === pack.publisher_user
 const canDelete = isOwner || (!!currentUser && (await isAdmin(env.DB, currentUser.email)));
 
 const publisherImage = publisher?.image ?? null;
-const meta: { label: string; value: string; image?: string | null }[] = pack
+const meta: { label: string; value: string; image?: string | null; key?: string }[] = pack
   ? [
       { label: ui.detail.version, value: pack.version },
       { label: ui.detail.license, value: pack.license || ui.detail.none },
-      { label: ui.detail.downloads, value: String(pack.download_count) },
+      { label: ui.detail.downloads, value: String(pack.download_count), key: 'installs' },
       { label: ui.detail.publisher, value: publisherName, image: publisherImage },
     ]
   : [];
@@ -198,7 +198,7 @@ const rawImgBase = pack
                       class="border-dark/10 h-5 w-5 rounded-full border object-cover"
                     />
                   )}
-                  <span>{m.value}</span>
+                  <span data-install-count={m.key === 'installs' ? '' : undefined}>{m.value}</span>
                 </dd>
               </div>
             ))}
@@ -319,9 +319,32 @@ const rawImgBase = pack
   );
 
   const btn = document.getElementById('install-btn');
+  const countEl = document.querySelector('[data-install-count]');
   btn?.addEventListener('click', () => {
     const id = btn.dataset.packId;
-    if (id) navigator.sendBeacon(`/api/packs/${id}/install`);
+    if (!id) return;
+    // Optimistically reflect the install in the count right away…
+    const prev = countEl?.textContent ?? '';
+    if (countEl) {
+      const n = parseInt(prev, 10);
+      countEl.textContent = String((Number.isNaN(n) ? 0 : n) + 1);
+    }
+    const rollback = () => {
+      if (countEl) countEl.textContent = prev;
+    };
+    // …then persist it. Use fetch with a JSON content-type (not sendBeacon):
+    // Astro's CSRF origin check forbids form-type/no-content-type POSTs, which
+    // silently 403'd the old beacon so the counter never moved. `keepalive`
+    // lets the request finish as the page hands off to the nevoflux:// app.
+    fetch(`/api/packs/${id}/install`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      keepalive: true,
+    })
+      .then((res) => {
+        if (!res.ok) rollback();
+      })
+      .catch(rollback);
   });
 
   const star = document.getElementById('star-btn');
