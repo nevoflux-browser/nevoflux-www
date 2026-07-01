@@ -318,12 +318,26 @@ const rawImgBase = pack
     })
   );
 
-  const btn = document.getElementById('install-btn');
+  const btn = document.getElementById('install-btn') as HTMLAnchorElement | null;
   const countEl = document.querySelector('[data-install-count]');
-  btn?.addEventListener('click', () => {
+  btn?.addEventListener('click', (e) => {
     const id = btn.dataset.packId;
     if (!id) return;
-    // Optimistically reflect the install in the count right away…
+    // The button is a nevoflux:// deep link. Inside the NevoFlux app, following
+    // it tears down this page, which cancels the count request (beacon or fetch)
+    // before it is sent — so the count never moved. Send the ping FIRST, then
+    // follow the link once it's on its way. keepalive + the timeout fallback
+    // make sure the app still opens even if the request is slow or fails.
+    e.preventDefault();
+    const href = btn.getAttribute('href') || '';
+    let left = false;
+    const leave = () => {
+      if (left || !href || href === '#') return;
+      left = true;
+      window.location.href = href;
+    };
+    // Optimistically reflect the install (visible when the app isn't installed
+    // and this page stays put); roll back if the request fails.
     const prev = countEl?.textContent ?? '';
     if (countEl) {
       const n = parseInt(prev, 10);
@@ -332,10 +346,6 @@ const rawImgBase = pack
     const rollback = () => {
       if (countEl) countEl.textContent = prev;
     };
-    // …then persist it. Use fetch with a JSON content-type (not sendBeacon):
-    // Astro's CSRF origin check forbids form-type/no-content-type POSTs, which
-    // silently 403'd the old beacon so the counter never moved. `keepalive`
-    // lets the request finish as the page hands off to the nevoflux:// app.
     fetch(`/api/packs/${id}/install`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -344,7 +354,10 @@ const rawImgBase = pack
       .then((res) => {
         if (!res.ok) rollback();
       })
-      .catch(rollback);
+      .catch(rollback)
+      .finally(leave);
+    // Fallback: open the app even if the request hangs.
+    setTimeout(leave, 800);
   });
 
   const star = document.getElementById('star-btn');
