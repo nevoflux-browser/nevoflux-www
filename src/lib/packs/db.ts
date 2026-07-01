@@ -222,6 +222,19 @@ export async function incrementDownload(db: D1Database, id: string): Promise<voi
     .run();
 }
 
+/**
+ * Increment by install source (the `src` from the nevoflux://pack-install deep
+ * link, which equals pack.install_src). Used by the in-app install page, which
+ * knows the src but not the pack id. Returns true if a pack matched.
+ */
+export async function incrementDownloadBySrc(db: D1Database, installSrc: string): Promise<boolean> {
+  const res = await db
+    .prepare('UPDATE pack SET download_count = download_count + 1 WHERE install_src = ?1')
+    .bind(installSrc)
+    .run();
+  return (res.meta?.changes ?? 0) > 0;
+}
+
 /** Has this user starred this pack? Fail-closed if the table is not migrated yet. */
 export async function hasStarred(db: D1Database, packId: string, userId: string): Promise<boolean> {
   try {

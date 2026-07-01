@@ -322,23 +322,11 @@ const rawImgBase = pack
     })
   );
 
-  const btn = document.getElementById('install-btn');
-  const countEl = document.querySelector('[data-install-count]');
-  btn?.addEventListener('click', () => {
-    const id = btn.dataset.packId;
-    if (!id) return;
-    // Count the install with sendBeacon, then let the button's nevoflux:// link
-    // open the app as normal. sendBeacon is the right primitive here: it never
-    // triggers a CORS preflight (unlike a JSON fetch), and the browser flushes
-    // it even as this page is torn down by that navigation inside the app.
-    navigator.sendBeacon(`/api/packs/${id}/install`);
-    // Optimistically bump the shown count (for when the page stays, e.g. the
-    // app isn't installed and the OS just prompts).
-    if (countEl) {
-      const n = parseInt(countEl.textContent ?? '', 10);
-      countEl.textContent = String((Number.isNaN(n) ? 0 : n) + 1);
-    }
-  });
+  // Installs are counted app-side: the NevoFlux pack-install page reports a
+  // successful install to POST /api/packs/install. A website-side ping from
+  // here can't work in-app (the nevoflux:// navigation tears this page down
+  // before it fires) and would double-count external-browser installs, so the
+  // button is just the deep link.
 
   const star = document.getElementById('star-btn');
   star?.addEventListener('click', async () => {
