@@ -14,6 +14,10 @@ const ui = getUI(locale);
 const id = Astro.params.id ?? '';
 const env = getRuntimeEnv(Astro.locals);
 
+// The install count changes on every install; never serve a stale copy, or a
+// refresh right after installing would still show the old number.
+Astro.response.headers.set('Cache-Control', 'no-store');
+
 const row = await getPackById(env.DB, id);
 const pack = row ? parsePackRow(row) : null;
 const publisher = row ? await getPublisher(env.DB, row.publisher_user_id) : null;
@@ -318,46 +322,22 @@ const rawImgBase = pack
     })
   );
 
-  const btn = document.getElementById('install-btn') as HTMLAnchorElement | null;
+  const btn = document.getElementById('install-btn');
   const countEl = document.querySelector('[data-install-count]');
-  btn?.addEventListener('click', (e) => {
+  btn?.addEventListener('click', () => {
     const id = btn.dataset.packId;
     if (!id) return;
-    // The button is a nevoflux:// deep link. Inside the NevoFlux app, following
-    // it tears down this page, which cancels the count request (beacon or fetch)
-    // before it is sent — so the count never moved. Send the ping FIRST, then
-    // follow the link once it's on its way. keepalive + the timeout fallback
-    // make sure the app still opens even if the request is slow or fails.
-    e.preventDefault();
-    const href = btn.getAttribute('href') || '';
-    let left = false;
-    const leave = () => {
-      if (left || !href || href === '#') return;
-      left = true;
-      window.location.href = href;
-    };
-    // Optimistically reflect the install (visible when the app isn't installed
-    // and this page stays put); roll back if the request fails.
-    const prev = countEl?.textContent ?? '';
+    // Count the install with sendBeacon, then let the button's nevoflux:// link
+    // open the app as normal. sendBeacon is the right primitive here: it never
+    // triggers a CORS preflight (unlike a JSON fetch), and the browser flushes
+    // it even as this page is torn down by that navigation inside the app.
+    navigator.sendBeacon(`/api/packs/${id}/install`);
+    // Optimistically bump the shown count (for when the page stays, e.g. the
+    // app isn't installed and the OS just prompts).
     if (countEl) {
-      const n = parseInt(prev, 10);
+      const n = parseInt(countEl.textContent ?? '', 10);
       countEl.textContent = String((Number.isNaN(n) ? 0 : n) + 1);
     }
-    const rollback = () => {
-      if (countEl) countEl.textContent = prev;
-    };
-    fetch(`/api/packs/${id}/install`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      keepalive: true,
-    })
-      .then((res) => {
-        if (!res.ok) rollback();
-      })
-      .catch(rollback)
-      .finally(leave);
-    // Fallback: open the app even if the request hangs.
-    setTimeout(leave, 800);
   });
 
   const star = document.getElementById('star-btn');
