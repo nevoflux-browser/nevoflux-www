@@ -55,7 +55,14 @@
     "ciphertext",
     "Resynced",
     "upserts",
-    "nonoptional"
+    "nonoptional",
+    "CUDA",
+    "unpair",
+    "unpairing",
+    "redialled",
+    "ungated",
+    "untick",
+    "unticked"
   ],
   "ignorePaths": [
     "node_modules",
